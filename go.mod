@@ -3,7 +3,7 @@ module GoTicTacToe
 go 1.24.0
 
 require (
-	github.com/hajimehoshi/ebiten/v2 v2.9.3
+	github.com/hajimehoshi/ebiten/v2 v2.9.4
 	golang.org/x/image v0.32.0
 )
 
