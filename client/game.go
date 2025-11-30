@@ -1,7 +1,10 @@
 package main
 
 import (
+	"encoding/json"
 	"Goonker/client/ui"
+	"Goonker/common"
+	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
@@ -20,8 +23,13 @@ const (
 )
 
 type Game struct {
-	menu  *Menu
-	state int
+	menu      *Menu
+	state     int
+	netClient *NetworkClient
+
+	mySymbol  common.PlayerID // 1 for X, 2 for O
+	boardData [3][3]common.PlayerID
+	isMyTurn   bool
 }
 
 type Menu struct {
@@ -31,19 +39,74 @@ type Menu struct {
 }
 
 /**
- * Update the game state.
- * Called every tick (1/60 [s] by default).
+ * Initializes the game state.
+ */
+func (g *Game) Init() {
+	// Initialize network client
+	g.netClient = NewNetworkClient()
+
+	// Try to connect to server (Async)
+	// Note: For WASM/Localhost testing use ws://localhost:8080/ws
+	go func() {
+		err := g.netClient.Connect("ws://localhost:8080/ws")
+		if err != nil {
+			log.Println("Connection failed:", err)
+		}
+	}()
+
+	// Initialize menu
+	g.menu = &Menu{}
+
+	// Center buttons
+	buttonWidth, buttonHeight := 200.0, 60.0
+	centerX := (float64(WindowWidth) - buttonWidth) / 2
+
+	// Create buttons
+	g.menu.btnPlay = ui.NewButton(centerX, 200, buttonWidth, buttonHeight, "Play")
+	g.menu.btnQuit = ui.NewButton(centerX, 300, buttonWidth, buttonHeight, "Quit")
+
+	// Pre-render menu image
+	if g.menu.menuImage == nil {
+		img := ui.DrawMenu(WindowWidth, WindowHeight, GameTitle)
+		g.menu.menuImage = ebiten.NewImageFromImage(img)
+	}
+
+	// Pre-render board image
+	if boardImage == nil {
+		grid := ui.DrawGrid()
+		boardImage = ebiten.NewImageFromImage(grid)
+	}
+
+	// Set initial state
+	g.state = sMenu
+}
+
+/**
+ * Updates the game state every tick.
+ * Typically called every tick (1/60[s] by default).
  */
 func (g *Game) Update() error {
+
+	// Always poll the network for incoming messages first
+	g.handleNetwork()
+
 	switch g.state {
 	case sInit:
 		g.Init()
 	case sMenu:
 		if g.menu.btnPlay.IsClicked() {
-			g.state = sGamePlaying
+			// Ask server to join a game
+			log.Println("Sending Join Request...")
+			g.netClient.SendPacket(common.Packet{
+				Type: common.MsgJoin,
+			})
 		}
 		if g.menu.btnQuit.IsClicked() {
 			return ebiten.Termination
+		}
+	case sGamePlaying:
+		if g.isMyTurn && ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
+			// Still TODO: Handle click on board
 		}
 	}
 	return nil
@@ -66,29 +129,40 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 }
 
+/**
+ * Defines the game's screen dimensions.
+ */
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
 	return WindowWidth, WindowHeight
 }
 
-func (g *Game) Init() {
 
-	g.menu = &Menu{}
+/**
+ * Handles incoming network messages.
+ */
+func (g *Game) handleNetwork() {
+	for {
+		packet := g.netClient.Poll()
+		if packet == nil {
+			break // No more messages
+		}
 
-	buttonWidth, buttonHeight := 200.0, 60.0
-	centerX := (float64(WindowWidth) - buttonWidth) / 2
+		switch packet.Type {
+		case common.MsgGameStart:
+			var p common.GameStartPayload
+			json.Unmarshal(packet.Data, &p)
+			
+			g.mySymbol = p.YouAre
+			g.state = sGamePlaying // Server authorized us to start
+			log.Printf("Game Started! I am Player %d", g.mySymbol)
 
-	g.menu.btnPlay = ui.NewButton(centerX, 200, buttonWidth, buttonHeight, "Play")
-	g.menu.btnQuit = ui.NewButton(centerX, 300, buttonWidth, buttonHeight, "Quit")
-
-	if g.menu.menuImage == nil {
-		img := ui.DrawMenu(WindowWidth, WindowHeight, GameTitle)
-		g.menu.menuImage = ebiten.NewImageFromImage(img)
+		case common.MsgUpdate:
+			var p common.UpdatePayload
+			json.Unmarshal(packet.Data, &p)
+			
+			g.boardData = p.Board
+			g.isMyTurn = (p.Turn == g.mySymbol)
+			log.Println("Board updated")
+		}
 	}
-
-	if boardImage == nil {
-		grid := ui.DrawGrid()
-		boardImage = ebiten.NewImageFromImage(grid)
-	}
-
-	g.state = sMenu
 }
