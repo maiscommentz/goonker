@@ -34,4 +34,22 @@ func (h *Hub) HandleJoin(roomID string, conn *websocket.Conn, ctx context.Contex
 	// Add player to the room (Blocks until client disconnects)
 	room.Join(conn, ctx)
 	
+	h.checkAndDestroy(roomID, room)
+}
+
+// checkAndDestroy removes the room from the map if it is empty
+func (h *Hub) checkAndDestroy(roomID string, room *Room) {
+	h.roomsMu.Lock()
+	defer h.roomsMu.Unlock()
+
+	// Critical: Check if the room in the map is actually the same instance
+	// (Prevents race conditions if a room was deleted and recreated instantly)
+	if existingRoom, ok := h.rooms[roomID]; ok && existingRoom == room {
+		if !room.HasPlayers() {
+			delete(h.rooms, roomID)
+			log.Printf("[%s] Room empty and deleted", roomID)
+		} else {
+			log.Printf("[%s] Player left, but room still active", roomID)
+		}
+	}
 }

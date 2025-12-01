@@ -124,9 +124,6 @@ func (r *Room) handlePacket(player *Player, packet common.Packet) {
 	defer r.mu.Unlock()
 
 	switch packet.Type {
-	case common.MsgJoin:
-		// Logic handled in Join(), but clients might send this as handshake
-		
 	case common.MsgClick:
 		// 1. Validate Turn
 		if r.turn != player.Symbol {
@@ -197,4 +194,11 @@ func (r *Room) sendPacket(p *Player, pkt common.Packet) {
 func mustMarshal(v interface{}) []byte {
 	b, _ := json.Marshal(v)
 	return b
+}
+
+// HasPlayers checks if there are any connected players
+func (r *Room) HasPlayers() bool {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	return r.p1 != nil || r.p2 != nil
 }
