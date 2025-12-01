@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"Goonker/common"
-	server "Goonker/server/logic"
+	"Goonker/server/logic"
 
 	"nhooyr.io/websocket"
 	"nhooyr.io/websocket/wsjson"
@@ -22,7 +22,7 @@ type Player struct {
 type Room struct {
 	ID        string
 	Players   map[common.PlayerID]*Player
-	Logic     *server.GameLogic
+	Logic     *logic.GameLogic
 	
 	mutex     sync.Mutex
 	IsBotGame bool
@@ -32,7 +32,7 @@ func NewRoom(id string, isBot bool) *Room {
 	return &Room{
 		ID:        id,
 		Players:   make(map[common.PlayerID]*Player),
-		Logic:     server.NewGameLogic(),
+		Logic:     logic.NewGameLogic(),
 		IsBotGame: isBot,
 	}
 }
@@ -124,7 +124,7 @@ func (r *Room) handleMove(pid common.PlayerID, x, y int) {
 	if r.IsBotGame && !r.Logic.GameOver && r.Logic.Turn == common.P2 {
 		go func() {
 			// Launch the bot in a goroutine to avoid blocking the mutex for too long
-			bx, by := server.GetBotMove(r.Logic)
+			bx, by := logic.GetBotMove(r.Logic)
 			if bx != -1 {
 				// Call handleMove for the bot
 				// Note: handleMove takes a Lock, so we must call it outside the current lock.
@@ -158,6 +158,8 @@ func (r *Room) broadcastUpdate() {
 }
 
 func (r *Room) broadcastUpdate_Locked() {
+	log.Printf("Room %s: Broadcasting update", r.ID)
+	r.Logic.PrintConsoleBoard()
 	payload := common.UpdatePayload{
 		Board: r.Logic.Board,
 		Turn:  r.Logic.Turn,

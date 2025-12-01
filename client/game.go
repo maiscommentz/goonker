@@ -7,6 +7,8 @@ import (
 	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
+
 )
 
 var (
@@ -109,8 +111,24 @@ func (g *Game) Update() error {
 	case sPlayMenu:
 		//TODO: Handle Play Menu interactions
 	case sGamePlaying:
-		if g.isMyTurn && ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
-			// Still TODO: Handle click on board
+		if g.isMyTurn && inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
+			x, y := ebiten.CursorPosition()
+			cellX := x / (WindowWidth / 3)
+			cellY := y / (WindowHeight / 3)
+			
+			err := g.netClient.SendPacket(common.Packet{
+				Type: common.MsgClick,
+				Data: func() json.RawMessage {
+					payload, _ := json.Marshal(common.ClickPayload{
+						X: cellX,
+						Y: cellY,
+					})
+					return payload
+				}(),
+			})
+			if err != nil {
+				log.Println("Failed to send move:", err)
+			}
 		}
 	}
 	return nil

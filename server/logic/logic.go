@@ -70,3 +70,27 @@ func (g *GameLogic) checkWin(p common.PlayerID) bool {
 	
 	return false
 }
+
+func (g *GameLogic) PrintConsoleBoard() {
+	for y := 0; y < 3; y++ {
+		for x := 0; x < 3; x++ {
+			cell := g.Board[x][y]
+			var symbol string
+			if cell == common.P1 {
+				symbol = "X"
+			} else if cell == common.P2 {
+				symbol = "O"
+			} else {
+				symbol = "."
+			}
+			if x < 2 {
+				symbol += " | "
+			}
+			print(symbol)
+		}
+		println()
+		if y < 2 {
+			println("---------")
+		}
+	}
+}
