@@ -5,200 +5,170 @@ import (
 	"encoding/json"
 	"log"
 	"sync"
+	"time"
 
-	"Goonker/common" // Adjust to your module path
+	"Goonker/common"
+	server "Goonker/server/logic"
 
 	"nhooyr.io/websocket"
 	"nhooyr.io/websocket/wsjson"
 )
 
-// Player wraps the connection
 type Player struct {
-	Conn   *websocket.Conn
-	Symbol common.PlayerID // 1 (X) or 2 (O)
+	Conn *websocket.Conn
+	ID   common.PlayerID
 }
 
-// Room represents one match
 type Room struct {
-	ID string
-
-	// Game State
-	mu    sync.Mutex
-	board [3][3]common.PlayerID
-	turn  common.PlayerID
-
-	// Players
-	p1 *Player
-	p2 *Player
+	ID        string
+	Players   map[common.PlayerID]*Player
+	Logic     *server.GameLogic
+	
+	mutex     sync.Mutex
+	IsBotGame bool
 }
 
-func NewRoom(id string) *Room {
+func NewRoom(id string, isBot bool) *Room {
 	return &Room{
-		ID:    id,
-		board: [3][3]common.PlayerID{}, // Empty board
-		turn:  common.P1,               // X starts
+		ID:        id,
+		Players:   make(map[common.PlayerID]*Player),
+		Logic:     server.NewGameLogic(),
+		IsBotGame: isBot,
 	}
 }
 
-// Join handles the player connection lifecycle
-func (r *Room) Join(conn *websocket.Conn, ctx context.Context) {
-	r.mu.Lock()
+// AddPlayer add a new player to the room and starts listening to their messages
+func (r *Room) AddPlayer(conn *websocket.Conn) common.PlayerID {
+	r.mutex.Lock()
+	defer r.mutex.Unlock()
 
-	// Assign Player Slot
-	var player *Player
-	var symbol common.PlayerID
-
-	if r.p1 == nil {
-		symbol = common.P1
-		player = &Player{Conn: conn, Symbol: symbol}
-		r.p1 = player
-		log.Printf("[%s] Player 1 joined", r.ID)
-	} else if r.p2 == nil {
-		symbol = common.P2
-		player = &Player{Conn: conn, Symbol: symbol}
-		r.p2 = player
-		log.Printf("[%s] Player 2 joined", r.ID)
+	// Determine the player ID (1 or 2)
+	var pid common.PlayerID
+	if _, ok := r.Players[common.P1]; !ok {
+		pid = common.P1
+	} else if _, ok := r.Players[common.P2]; !ok {
+		pid = common.P2
 	} else {
-		r.mu.Unlock()
-		conn.Close(websocket.StatusPolicyViolation, "Room full")
-		return
+		return common.Empty // Room full
 	}
-	r.mu.Unlock()
 
-	// Check if game can start
-	r.checkStart()
+	r.Players[pid] = &Player{Conn: conn, ID: pid}
+	
+	// Launch listener in a separate goroutine
+	go r.listenPlayer(pid, conn)
 
-	// Listen Loop (Blocks)
-	r.listen(player, ctx)
-
-	// Cleanup on disconnect
-	r.mu.Lock()
-	if r.p1 == player {
-		r.p1 = nil
-	} else if r.p2 == player {
-		r.p2 = nil
+	// If the room is full or if it's a bot game, start
+	if r.IsFull() || (r.IsBotGame && pid == common.P1) {
+		go r.startGame()
 	}
-	r.mu.Unlock()
-	log.Printf("[%s] Player %d disconnected", r.ID, symbol)
+
+	return pid
 }
 
-func (r *Room) checkStart() {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-
-	if r.p1 != nil && r.p2 != nil {
-		log.Printf("[%s] Both players ready. Starting game.", r.ID)
-		
-		// Send "Game Start" to P1
-		r.sendPacket(r.p1, common.Packet{
-			Type: common.MsgGameStart,
-			Data: mustMarshal(common.GameStartPayload{YouAre: common.P1}),
-		})
-
-		// Send "Game Start" to P2
-		r.sendPacket(r.p2, common.Packet{
-			Type: common.MsgGameStart,
-			Data: mustMarshal(common.GameStartPayload{YouAre: common.P2}),
-		})
-
-		// Broadcast initial board
-		r.broadcastUpdate()
+func (r *Room) IsFull() bool {
+	if r.IsBotGame {
+		return len(r.Players) >= 1
 	}
+	return len(r.Players) == 2
 }
 
-func (r *Room) listen(player *Player, ctx context.Context) {
+func (r *Room) startGame() {
+	log.Printf("Room %s: Starting game", r.ID)
+	r.broadcastGameStart()
+	r.broadcastUpdate()
+}
+
+// listenPlayer listens to incoming messages from a specific client
+func (r *Room) listenPlayer(pid common.PlayerID, conn *websocket.Conn) {
+	ctx := context.Background()
+	defer func() {
+		// Cleanup on disconnection
+		r.mutex.Lock()
+		delete(r.Players, pid)
+		r.mutex.Unlock()
+		conn.Close(websocket.StatusNormalClosure, "")
+	}()
+
 	for {
 		var packet common.Packet
-		err := wsjson.Read(ctx, player.Conn, &packet)
+		err := wsjson.Read(ctx, conn, &packet)
 		if err != nil {
-			return // Connection closed
+			log.Printf("Room %s: Player %d disconnected", r.ID, pid)
+			return
 		}
 
-		// Handle Incoming Packet
-		r.handlePacket(player, packet)
+		if packet.Type == common.MsgClick {
+			var payload common.ClickPayload
+			if err := json.Unmarshal(packet.Data, &payload); err == nil {
+				r.handleMove(pid, payload.X, payload.Y)
+			}
+		}
 	}
 }
 
-func (r *Room) handlePacket(player *Player, packet common.Packet) {
-	r.mu.Lock()
-	defer r.mu.Unlock()
+func (r *Room) handleMove(pid common.PlayerID, x, y int) {
+	r.mutex.Lock()
+	defer r.mutex.Unlock()
 
-	switch packet.Type {
-	case common.MsgClick:
-		// 1. Validate Turn
-		if r.turn != player.Symbol {
-			log.Printf("[%s] Ignored move from %d (not their turn)", r.ID, player.Symbol)
-			return
-		}
+	// Apply the move via pure game logic
+	err := r.Logic.ApplyMove(pid, x, y)
+	if err != nil {
+		log.Printf("Invalid move from %d: %v", pid, err)
+		return
+	}
 
-		// 2. Parse Payload
-		var payload common.ClickPayload
-		if err := json.Unmarshal(packet.Data, &payload); err != nil {
-			return
-		}
+	// Send the update to everyone
+	r.broadcastUpdate_Locked()
 
-		// 3. Validate Move (Bounds & Empty)
-		if payload.X < 0 || payload.X > 2 || payload.Y < 0 || payload.Y > 2 {
-			return
-		}
-		if r.board[payload.X][payload.Y] != common.Empty {
-			// CONQUER MECHANIC WOULD GO HERE (Check if enemy occupied)
-			log.Printf("Cell occupied. Trigger minigame logic here later.")
-			return
-		}
+	// If it's a Bot Game and the game is not over, the bot plays
+	if r.IsBotGame && !r.Logic.GameOver && r.Logic.Turn == common.P2 {
+		go func() {
+			// Launch the bot in a goroutine to avoid blocking the mutex for too long
+			bx, by := server.GetBotMove(r.Logic)
+			if bx != -1 {
+				// Call handleMove for the bot
+				// Note: handleMove takes a Lock, so we must call it outside the current lock.
+				// That's why we're in a `go func` here.
+				r.handleMove(common.P2, bx, by)
+			}
+		}()
+	}
+}
 
-		// 4. Update Board
-		r.board[payload.X][payload.Y] = player.Symbol
+func (r *Room) broadcastGameStart() {
+	r.mutex.Lock()
+	defer r.mutex.Unlock()
+
+	for pid, p := range r.Players {
+		payload := common.GameStartPayload{
+			YouAre: pid,
+			OpponentID: "unknown",
+		}
+		data, _ := json.Marshal(payload)
+		packet := common.Packet{Type: common.MsgGameStart, Data: data}
 		
-		// 5. Toggle Turn
-		if r.turn == common.P1 {
-			r.turn = common.P2
-		} else {
-			r.turn = common.P1
-		}
-
-		// 6. Broadcast new state
-		r.broadcastUpdate()
+		go wsjson.Write(context.Background(), p.Conn, packet)
 	}
 }
 
 func (r *Room) broadcastUpdate() {
-	// Prepare Payload
-	update := common.UpdatePayload{
-		Board: r.board,
-		Turn:  r.turn,
-	}
-	data := mustMarshal(update)
-
-	pkt := common.Packet{
-		Type: common.MsgUpdate,
-		Data: data,
-	}
-
-	if r.p1 != nil {
-		r.sendPacket(r.p1, pkt)
-	}
-	if r.p2 != nil {
-		r.sendPacket(r.p2, pkt)
-	}
+	r.mutex.Lock()
+	defer r.mutex.Unlock()
+	r.broadcastUpdate_Locked()
 }
 
-func (r *Room) sendPacket(p *Player, pkt common.Packet) {
-	// In a real app, use a context with timeout
-	go func() {
-		wsjson.Write(context.Background(), p.Conn, pkt)
-	}()
-}
+func (r *Room) broadcastUpdate_Locked() {
+	payload := common.UpdatePayload{
+		Board: r.Logic.Board,
+		Turn:  r.Logic.Turn,
+	}
+	data, _ := json.Marshal(payload)
+	packet := common.Packet{Type: common.MsgUpdate, Data: data}
 
-// Helper to marshal JSON without error checking (for internal structs)
-func mustMarshal(v interface{}) []byte {
-	b, _ := json.Marshal(v)
-	return b
-}
-
-// HasPlayers checks if there are any connected players
-func (r *Room) HasPlayers() bool {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-	return r.p1 != nil || r.p2 != nil
+	for _, p := range r.Players {
+		// Timeout of 5 seconds for sending
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		wsjson.Write(ctx, p.Conn, packet)
+		cancel()
+	}
 }

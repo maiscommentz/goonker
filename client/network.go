@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"log"
 	"sync"
 	"time"
@@ -29,7 +30,7 @@ func NewNetworkClient() *NetworkClient {
 }
 
 // Connect dials the server (ws://localhost:8080/ws for local dev)
-func (c *NetworkClient) Connect(url string) error {
+func (c *NetworkClient) Connect(url string, roomID string, isBot bool) error {
 	// Thread-safe check if already connected
 	c.sendMu.Lock()
 	if c.conn != nil {
@@ -51,6 +52,22 @@ func (c *NetworkClient) Connect(url string) error {
 	c.conn = conn
 	c.ctx, c.ctxCancel = context.WithCancel(context.Background())
 	c.sendMu.Unlock()
+
+	joinPayload := common.JoinPayload{
+        RoomID: roomID,
+        IsBot:  isBot,
+    }
+    
+    data, _ := json.Marshal(joinPayload)
+    packet := common.Packet{
+        Type: common.MsgJoin,
+        Data: data,
+    }
+
+	if err := wsjson.Write(ctx, c.conn, packet); err != nil {
+        c.conn.Close(websocket.StatusInternalError, "failed to send join")
+        return err
+    }
 
 	// Start listening immediately in a separate goroutine
 	go c.listen()

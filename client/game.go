@@ -96,7 +96,7 @@ func (g *Game) Update() error {
 			// Try to connect to server (Async)
 			// Note: For WASM/Localhost testing use ws://localhost:8080/ws?room=87DY68
 			go func() {
-				err := g.netClient.Connect("ws://localhost:8080/ws?room=87DY68")
+				err := g.netClient.Connect("ws://localhost:8080/ws", "87DY68", false)
 				if err != nil {
 					log.Println("Connection failed:", err)
 				}
