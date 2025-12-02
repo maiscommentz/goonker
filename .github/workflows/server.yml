@@ -2,9 +2,9 @@ name: Build and push Docker image
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
 permissions:
   contents: read
   packages: write
@@ -12,34 +12,37 @@ permissions:
 jobs:
   lint:
     runs-on: ubuntu-latest
-    steps:
-      - name: "[⚙️] Checkout repository"
-        uses: actions/checkout@v3
-
-      - name: "[📦] Setup Go"
-        uses: actions/setup-go@v4
-        with:
-          go-version: '1.24'
-
-      - name: "[🧹] Run golangci-lint"
-        uses: golangci/golangci-lint-action@v4
-        with:
-          version: v1.59.0
-          args: --timeout=5m
-          working-directory: ./server
-          
-  test:
-    needs: lint
-    runs-on: ubuntu-latest
     continue-on-error: true
     steps:
       - name: "[⚙️] Checkout repository"
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: "[📦] Setup Go"
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
-          go-version: '1.24'
+          go-version: stable
+
+      - name: "[🛠️] Install Linux dependencies"
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libasound2-dev libgl1-mesa-dev libxcursor-dev libxi-dev libxinerama-dev libxrandr-dev libxxf86vm-dev
+
+      - name: "[🧹] Run golangci-lint"
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: latest
+          working-directory: ./server
+          
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "[⚙️] Checkout repository"
+        uses: actions/checkout@v4
+
+      - name: "[📦] Setup Go"
+        uses: actions/setup-go@v5
+        with:
+          go-version: stable
 
       - name: "[🛠️] Install Linux dependencies"
         run: |
@@ -50,14 +53,14 @@ jobs:
         run: go test ./server/... -v -coverprofile=coverage.out
 
   build:
-    needs: test
+    needs: [lint, test]
     runs-on: ubuntu-latest
     steps:
       - name: "[⚙️] Checkout repository"
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: "[📦] Set up Docker"
-        uses: docker/setup-docker@v2 
+      - name: "[📦] Setup Docker Buildx"
+        uses: docker/setup-buildx-action@v2
       
       - name: "[🔐] Login to GitHub Container Registry"
         uses: docker/login-action@v2
@@ -67,7 +70,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: "[🐳] Build and push Docker image"
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: ./Dockerfile
@@ -83,12 +86,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: "[⚙️] Checkout repository"
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       
       - name: "[📦] Setup Go"
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
-          go-version: '1.24'
+          go-version: stable
       
       - name: "[🏷️] Run GoReleaser"
         uses: goreleaser/goreleaser-action@v6
