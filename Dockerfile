@@ -1,0 +1,15 @@
+# Build stage
+FROM golang:1.24-alpine AS builder
+WORKDIR /app
+# Use module download cache to speed up builds
+COPY go.mod go.sum ./
+COPY . .
+# Build the server binary from the server package
+RUN go build -o goonker-server ./server
+
+# Run stage
+FROM alpine:3.19
+WORKDIR /app
+COPY --from=builder /app/goonker-server .
+EXPOSE 8080
+CMD ["./goonker-server"]
