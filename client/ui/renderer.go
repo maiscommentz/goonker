@@ -12,8 +12,11 @@ func RenderMenu(screen *ebiten.Image, menu *Menu) {
 	menu.BtnQuit.Draw(screen)
 }
 
-func RenderGame(screen *ebiten.Image, grid *Grid) {
+func RenderGame(screen *ebiten.Image, grid *Grid, myTurn bool) {
 	screen.DrawImage(grid.BoardImage, nil)
+
+	/*crtPlayer := fmt.Sprintf("")
+	text.Draw(screen, crtPlayer, normalText, 0, sHeight-30, color.White)*/
 
 	for x := 0; x < grid.Col; x++ {
 		for y := 0; y < grid.Col; y++ {

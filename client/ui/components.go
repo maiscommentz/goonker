@@ -83,3 +83,15 @@ func (b *Button) IsClicked() bool {
 	}
 	return false
 }
+
+func (g *Grid) OnClick() (int, int, bool) {
+	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
+		x, y := ebiten.CursorPosition()
+		cellX := x / (gridSize / 3)
+		cellY := y / (gridSize / 3)
+
+		return cellX, cellY, true
+	}
+
+	return -1, -1, false
+}

@@ -7,11 +7,6 @@ import (
 	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/inpututil"
-)
-
-var (
-	boardImage *ebiten.Image
 )
 
 const (
@@ -22,6 +17,8 @@ const (
 	sGamePlaying
 	sGameWin
 	sGameLose
+
+	gridCol = 3
 )
 
 type Game struct {
@@ -64,7 +61,7 @@ func (g *Game) Init() {
 	}
 
 	// Initialize the grid
-	g.grid = ui.NewGrid(3, 3)
+	g.grid = ui.NewGrid(gridCol, gridCol)
 
 	// Set initial state
 	g.state = sMenu
@@ -88,7 +85,7 @@ func (g *Game) Update() error {
 			// Try to connect to server (Async)
 			// Note: For WASM/Localhost testing use ws://localhost:8080/ws?room=87DY68
 			go func() {
-				err := g.netClient.Connect("ws://localhost:8080/ws", "87DY68", false)
+				err := g.netClient.Connect("ws://172.20.10.2:8080/ws", "87DY68", false) // 172.20.10.2
 				if err != nil {
 					log.Println("Connection failed:", err)
 				}
@@ -101,24 +98,27 @@ func (g *Game) Update() error {
 	case sPlayMenu:
 		//TODO: Handle Play Menu interactions
 	case sGamePlaying:
-		if g.isMyTurn && inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
-			x, y := ebiten.CursorPosition()
-			cellX := x / (WindowWidth / 3)
-			cellY := y / (WindowHeight / 3)
+		if !g.isMyTurn {
+			return nil
+		}
 
-			err := g.netClient.SendPacket(common.Packet{
-				Type: common.MsgClick,
-				Data: func() json.RawMessage {
-					payload, _ := json.Marshal(common.ClickPayload{
-						X: cellX,
-						Y: cellY,
-					})
-					return payload
-				}(),
-			})
-			if err != nil {
-				log.Println("Failed to send move:", err)
-			}
+		cellX, cellY, ok := g.grid.OnClick()
+		if !ok {
+			return nil
+		}
+
+		err := g.netClient.SendPacket(common.Packet{
+			Type: common.MsgClick,
+			Data: func() json.RawMessage {
+				payload, _ := json.Marshal(common.ClickPayload{
+					X: cellX,
+					Y: cellY,
+				})
+				return payload
+			}(),
+		})
+		if err != nil {
+			log.Println("Failed to send move:", err)
 		}
 	}
 	return nil
@@ -135,11 +135,11 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	case sPlayMenu:
 		//TODO: ui.RenderPlayMenu(...)
 	case sGamePlaying:
-		ui.RenderGame(screen, g.grid)
+		ui.RenderGame(screen, g.grid, g.isMyTurn)
 	case sGameWin:
-		ui.RenderGame(screen, g.grid)
+		ui.RenderGame(screen, g.grid, g.isMyTurn)
 	case sGameLose:
-		ui.RenderGame(screen, g.grid)
+		ui.RenderGame(screen, g.grid, g.isMyTurn)
 	}
 }
 

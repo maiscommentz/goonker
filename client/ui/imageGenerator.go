@@ -58,9 +58,10 @@ func DrawCircle(col, row int) image.Image {
 	centerY := float64(row*cellSize + cellSize/2)
 
 	dc.SetHexColor(gridBorderColor)
+	dc.SetLineWidth(lineWidth)
 	dc.DrawCircle(centerX, centerY, symbolLength)
 
-	dc.Fill()
+	dc.Stroke()
 
 	return dc.Image()
 }
