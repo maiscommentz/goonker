@@ -1,14 +1,13 @@
 package main
 
 import (
-	"encoding/json"
 	"Goonker/client/ui"
 	"Goonker/common"
+	"encoding/json"
 	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
-
 )
 
 var (
@@ -26,20 +25,14 @@ const (
 )
 
 type Game struct {
-	menu      *Menu
+	menu      *ui.Menu
 	playMenu  *PlayMenu
 	state     int
 	netClient *NetworkClient
+	grid      *ui.Grid
 
-	mySymbol  common.PlayerID // 1 for X, 2 for O
-	boardData [3][3]common.PlayerID
-	isMyTurn   bool
-}
-
-type Menu struct {
-	menuImage *ebiten.Image
-	btnPlay   *ui.Button
-	btnQuit   *ui.Button
+	mySymbol common.PlayerID // 1 for X, 2 for O
+	isMyTurn bool
 }
 
 type PlayMenu struct {
@@ -54,27 +47,24 @@ func (g *Game) Init() {
 	g.netClient = NewNetworkClient()
 
 	// Initialize menu
-	g.menu = &Menu{}
+	g.menu = &ui.Menu{}
 
 	// Center buttons
 	buttonWidth, buttonHeight := 200.0, 60.0
 	centerX := (float64(WindowWidth) - buttonWidth) / 2
 
 	// Create buttons
-	g.menu.btnPlay = ui.NewButton(centerX, 200, buttonWidth, buttonHeight, "Play")
-	g.menu.btnQuit = ui.NewButton(centerX, 300, buttonWidth, buttonHeight, "Quit")
+	g.menu.BtnPlay = ui.NewButton(centerX, 200, buttonWidth, buttonHeight, "Play")
+	g.menu.BtnQuit = ui.NewButton(centerX, 300, buttonWidth, buttonHeight, "Quit")
 
 	// Pre-render menu image
-	if g.menu.menuImage == nil {
+	if g.menu.MenuImage == nil {
 		img := ui.DrawMenu(WindowWidth, WindowHeight, GameTitle)
-		g.menu.menuImage = ebiten.NewImageFromImage(img)
+		g.menu.MenuImage = ebiten.NewImageFromImage(img)
 	}
 
-	// Pre-render board image
-	if boardImage == nil {
-		grid := ui.DrawGrid()
-		boardImage = ebiten.NewImageFromImage(grid)
-	}
+	// Initialize the grid
+	g.grid = ui.NewGrid(3, 3)
 
 	// Set initial state
 	g.state = sMenu
@@ -93,7 +83,7 @@ func (g *Game) Update() error {
 	case sInit:
 		g.Init()
 	case sMenu:
-		if g.menu.btnPlay.IsClicked() {
+		if g.menu.BtnPlay.IsClicked() {
 			// TODO: This block will be placed in PlayMenu later
 			// Try to connect to server (Async)
 			// Note: For WASM/Localhost testing use ws://localhost:8080/ws?room=87DY68
@@ -105,7 +95,7 @@ func (g *Game) Update() error {
 			}()
 			// TODO: g.state = sPlayMenu
 		}
-		if g.menu.btnQuit.IsClicked() {
+		if g.menu.BtnQuit.IsClicked() {
 			return ebiten.Termination
 		}
 	case sPlayMenu:
@@ -115,7 +105,7 @@ func (g *Game) Update() error {
 			x, y := ebiten.CursorPosition()
 			cellX := x / (WindowWidth / 3)
 			cellY := y / (WindowHeight / 3)
-			
+
 			err := g.netClient.SendPacket(common.Packet{
 				Type: common.MsgClick,
 				Data: func() json.RawMessage {
@@ -141,15 +131,15 @@ func (g *Game) Update() error {
 func (g *Game) Draw(screen *ebiten.Image) {
 	switch g.state {
 	case sMenu:
-		ui.RenderMenu(screen, g.menu.menuImage, g.menu.btnPlay, g.menu.btnQuit)
+		ui.RenderMenu(screen, g.menu)
 	case sPlayMenu:
 		//TODO: ui.RenderPlayMenu(...)
 	case sGamePlaying:
-		ui.RenderGame(screen, boardImage)
+		ui.RenderGame(screen, g.grid)
 	case sGameWin:
-		ui.RenderGame(screen, boardImage)
+		ui.RenderGame(screen, g.grid)
 	case sGameLose:
-		ui.RenderGame(screen, boardImage)
+		ui.RenderGame(screen, g.grid)
 	}
 }
 
@@ -160,15 +150,14 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeigh
 	return WindowWidth, WindowHeight
 }
 
-
 /**
  * Handles incoming network messages.
  */
 func (g *Game) handleNetwork() {
 	if g.netClient == nil {
-        return
-    }
-	
+		return
+	}
+
 	for {
 		packet := g.netClient.Poll()
 		if packet == nil {
@@ -179,7 +168,7 @@ func (g *Game) handleNetwork() {
 		case common.MsgGameStart:
 			var p common.GameStartPayload
 			json.Unmarshal(packet.Data, &p)
-			
+
 			g.mySymbol = p.YouAre
 			g.state = sGamePlaying // Server authorized us to start
 			log.Printf("Game Started! I am Player %d", g.mySymbol)
@@ -187,8 +176,8 @@ func (g *Game) handleNetwork() {
 		case common.MsgUpdate:
 			var p common.UpdatePayload
 			json.Unmarshal(packet.Data, &p)
-			
-			g.boardData = p.Board
+
+			g.grid.BoardData = p.Board
 			g.isMyTurn = (p.Turn == g.mySymbol)
 			log.Println("Board updated")
 		}

@@ -1,6 +1,8 @@
 package ui
 
 import (
+	"Goonker/common"
+
 	"github.com/fogleman/gg"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
@@ -10,6 +12,27 @@ type Button struct {
 	X, Y, Width, Height float64
 	Image               *ebiten.Image
 	Text                string
+}
+
+type Menu struct {
+	MenuImage *ebiten.Image
+	BtnPlay   *Button
+	BtnQuit   *Button
+}
+
+type Grid struct {
+	Col        int
+	BoardImage *ebiten.Image
+	BoardData  [3][3]common.PlayerID
+}
+
+type Cell struct {
+	Btn    Button
+	Symbol common.PlayerID
+}
+
+type Drawable interface {
+	Draw(screen *ebiten.Image)
 }
 
 func NewButton(x, y, w, h float64, text string) *Button {
@@ -31,6 +54,17 @@ func NewButton(x, y, w, h float64, text string) *Button {
 	b.Image = ebiten.NewImageFromImage(dc.Image())
 
 	return b
+}
+
+func NewGrid(col, row int) *Grid {
+	g := &Grid{
+		Col: col,
+	}
+
+	gridImage := DrawGrid(col)
+	g.BoardImage = ebiten.NewImageFromImage(gridImage)
+
+	return g
 }
 
 func (b *Button) Draw(screen *ebiten.Image) {

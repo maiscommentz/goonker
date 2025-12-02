@@ -9,17 +9,16 @@ import (
 
 const (
 	gridSize            = 600
-	gridColumn          = 3
 	lineWidth           = 12.0
 	gridBackgroundColor = "#F4F6F7"
 	gridBorderColor     = "#2C3E50"
 
-	cellSize = (gridSize / gridColumn)
+	cellSize = (gridSize / 3)
 
 	symbolLength = cellSize/2 - 2*lineWidth
 )
 
-func DrawGrid() image.Image {
+func DrawGrid(col int) image.Image {
 	dc := gg.NewContext(gridSize, gridSize)
 
 	// Draw the background
@@ -31,9 +30,9 @@ func DrawGrid() image.Image {
 	dc.SetLineWidth(lineWidth)
 	dc.SetLineCap(gg.LineCapRound)
 
-	cellSize := float64(gridSize) / float64(gridColumn)
+	cellSize := float64(gridSize) / float64(col)
 
-	for i := 1; i < gridColumn; i++ {
+	for i := 1; i < col; i++ {
 		pos := float64(i) * cellSize
 
 		// Vertical line
