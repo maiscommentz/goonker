@@ -3,7 +3,7 @@
 [x] Develop sGamePlaying state in client game for actual gameplay.
 [ ] Develop sPlayMenu state in client game for room selection and connection.
 [x] Test WebSocket connections with multiple clients in deployed environment.
-[ ] Test WebSocket connection in WASM build of client.
+[x] Test WebSocket connection in WASM build of client.
 
 [x] Implement bot support in client and server.
 [ ] Implement minimax algorithm for bot decision-making.
