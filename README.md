@@ -10,6 +10,10 @@ Run using Go :
 
     go run .
 
+Compile the client to wasm :
+
+    GOOS=js GOARCH=wasm go build -o ./web/demo.wasm ./client
+
 ## ⚡Features ideas
 
 - UI, choose play against bot

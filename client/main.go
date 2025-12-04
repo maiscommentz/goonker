@@ -1,22 +1,22 @@
 package main
 
 import (
+	"Goonker/client/ui"
 	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-const (
-	GameTitle    = "Goonker"
-	WindowWidth  = 600
-	WindowHeight = 600
-)
-
 func main() {
 	log.Println("Start client")
 	game := &Game{}
-	ebiten.SetWindowSize(WindowWidth, WindowHeight)
-	ebiten.SetWindowTitle(GameTitle)
+
+	log.Println(ui.WindowWidth)
+	log.Println(ui.WindowHeight)
+
+	ebiten.SetWindowSize(ui.WindowWidth, ui.WindowHeight)
+	ebiten.SetWindowTitle(ui.GameTitle)
+	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 	if err := ebiten.RunGame(game); err != nil {
 		log.Fatal(err)
 	}

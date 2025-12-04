@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	gridSize            = 600
+	gridSize            = WindowHeight - 20
 	lineWidth           = 12.0
 	gridBackgroundColor = "#F4F6F7"
 	gridBorderColor     = "#2C3E50"

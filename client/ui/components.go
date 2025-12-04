@@ -73,6 +73,12 @@ func (b *Button) Draw(screen *ebiten.Image) {
 	screen.DrawImage(b.Image, opts)
 }
 
+func (m *Menu) Draw(screen *ebiten.Image) {
+	screen.DrawImage(m.MenuImage, nil)
+	m.BtnPlay.Draw(screen)
+	m.BtnQuit.Draw(screen)
+}
+
 func (b *Button) IsClicked() bool {
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
 		mx, my := ebiten.CursorPosition()
@@ -85,13 +91,28 @@ func (b *Button) IsClicked() bool {
 }
 
 func (g *Grid) OnClick() (int, int, bool) {
-	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
-		x, y := ebiten.CursorPosition()
-		cellX := x / (gridSize / 3)
-		cellY := y / (gridSize / 3)
-
-		return cellX, cellY, true
+	if !inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
+		return -1, -1, false
 	}
 
-	return -1, -1, false
+	mx, my := ebiten.CursorPosition()
+
+	gridW, gridH := g.BoardImage.Bounds().Dx(), g.BoardImage.Bounds().Dy()
+
+	offsetX := (WindowWidth - gridW) / 2
+	offsetY := (WindowHeight - gridH) / 2
+
+	localX := mx - offsetX
+	localY := my - offsetY
+
+	if localX < 0 || localY < 0 || localX >= gridW || localY >= gridH {
+		return -1, -1, false
+	}
+
+	cellSize := gridW / GridCol
+
+	cellX := localX / cellSize
+	cellY := localY / cellSize
+
+	return cellX, cellY, true
 }

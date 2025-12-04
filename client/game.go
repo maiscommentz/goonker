@@ -17,8 +17,6 @@ const (
 	sGamePlaying
 	sGameWin
 	sGameLose
-
-	gridCol = 3
 )
 
 type Game struct {
@@ -48,7 +46,7 @@ func (g *Game) Init() {
 
 	// Center buttons
 	buttonWidth, buttonHeight := 200.0, 60.0
-	centerX := (float64(WindowWidth) - buttonWidth) / 2
+	centerX := (float64(ui.WindowWidth) - buttonWidth) / 2
 
 	// Create buttons
 	g.menu.BtnPlay = ui.NewButton(centerX, 200, buttonWidth, buttonHeight, "Play")
@@ -56,12 +54,12 @@ func (g *Game) Init() {
 
 	// Pre-render menu image
 	if g.menu.MenuImage == nil {
-		img := ui.DrawMenu(WindowWidth, WindowHeight, GameTitle)
+		img := ui.DrawMenu(ui.WindowWidth, ui.WindowHeight, ui.GameTitle)
 		g.menu.MenuImage = ebiten.NewImageFromImage(img)
 	}
 
 	// Initialize the grid
-	g.grid = ui.NewGrid(gridCol, gridCol)
+	g.grid = ui.NewGrid(ui.GridCol, ui.GridCol)
 
 	// Set initial state
 	g.state = sMenu
@@ -85,7 +83,7 @@ func (g *Game) Update() error {
 			// Try to connect to server (Async)
 			// Note: For WASM/Localhost testing use ws://localhost:8080/ws?room=87DY68
 			go func() {
-				err := g.netClient.Connect("ws://172.20.10.2:8080/ws", "87DY68", false) // 172.20.10.2
+				err := g.netClient.Connect("ws://localhost:8080/ws", "87DY68", false) // 172.20.10.2
 				if err != nil {
 					log.Println("Connection failed:", err)
 				}
@@ -147,7 +145,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
  * Defines the game's screen dimensions.
  */
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
-	return WindowWidth, WindowHeight
+	return ui.WindowWidth, ui.WindowHeight
 }
 
 /**
