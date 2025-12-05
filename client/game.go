@@ -24,6 +24,7 @@ const (
 	// Network configuration
 	serverAddress = "ws://localhost:8080/ws" // goonker.saikoon.ch
 	roomId        = "87DY68"
+	isBotGame     = false
 )
 
 type Game struct {
@@ -77,7 +78,7 @@ func (g *Game) Update() error {
 			// Note: For WASM/Localhost testing use ws://localhost:8080/ws?room=87DY68
 			go func() {
 				g.state = sWaitingGame
-				err := g.netClient.Connect(serverAddress, roomId, false)
+				err := g.netClient.Connect(serverAddress, roomId, isBotGame) // 172.20.10.2
 				if err != nil {
 					g.state = sMainMenu
 					log.Println("Connection failed:", err)
@@ -88,14 +89,14 @@ func (g *Game) Update() error {
 		if g.menu.BtnQuit.IsClicked() {
 			return ebiten.Termination
 		}
+	//case sPlayMenu:
+	//TODO: Handle Play Menu interactions
 	case sWaitingGame:
 		g.waitingMenu.RotationAngle += 0.08
 
 		if g.waitingMenu.RotationAngle > math.Pi*2 {
 			g.waitingMenu.RotationAngle -= math.Pi * 2
 		}
-	//case sPlayMenu:
-	//TODO: Handle Play Menu interactions
 	case sGamePlaying:
 		if !g.isMyTurn {
 			return nil
