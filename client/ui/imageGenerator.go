@@ -38,6 +38,9 @@ var (
 	MainMenuImage    *ebiten.Image
 	WaitingMenuImage *ebiten.Image
 	GameMenuImage    *ebiten.Image
+	WinMenuImage     *ebiten.Image
+	LooseMenuImage   *ebiten.Image
+	DrawMenuImage    *ebiten.Image
 )
 
 // Initializes the images.
@@ -49,6 +52,9 @@ func InitImages() {
 	DrawMainMenu(WindowWidth, WindowHeight, GameTitle)
 	DrawWaitingMenu(WindowWidth, WindowHeight)
 	DrawGameMenu(WindowWidth, WindowHeight)
+	DrawWinMenu(WindowWidth, WindowHeight)
+	DrawLooseMenu(WindowWidth, WindowHeight)
+	DrawDrawMenu(WindowWidth, WindowHeight)
 }
 
 // Draw the image for the grid.
@@ -204,4 +210,58 @@ func DrawGameMenu(width, height int) {
 	dc.DrawStringAnchored("Playing Goonker", (float64(width/2)-(gridSize/2))/2, float64(height)/TitleYRatio, 0.5, 0.5)
 
 	GameMenuImage = ebiten.NewImageFromImage(dc.Image())
+}
+
+// Draw the image for the win menu.
+func DrawWinMenu(width, height int) {
+	dc := gg.NewContext(width, height)
+
+	dc.SetHexColor(gridBackgroundColor)
+	dc.Clear()
+
+	// Load the font
+	if err := dc.LoadFontFace("client/assets/font.ttf", SubtitleFontSize); err != nil {
+		log.Println("warning, couldn't load the font")
+	}
+
+	dc.SetHexColor(gridBorderColor)
+	dc.DrawStringAnchored("You won !", float64(width/2), float64(height)/TitleYRatio, 0.5, 0.5)
+
+	WinMenuImage = ebiten.NewImageFromImage(dc.Image())
+}
+
+// Draw the image for the loose menu.
+func DrawLooseMenu(width, height int) {
+	dc := gg.NewContext(width, height)
+
+	dc.SetHexColor(gridBackgroundColor)
+	dc.Clear()
+
+	// Load the font
+	if err := dc.LoadFontFace("client/assets/font.ttf", SubtitleFontSize); err != nil {
+		log.Println("warning, couldn't load the font")
+	}
+
+	dc.SetHexColor(gridBorderColor)
+	dc.DrawStringAnchored("You lost ;(", float64(width/2), float64(height)/TitleYRatio, 0.5, 0.5)
+
+	LooseMenuImage = ebiten.NewImageFromImage(dc.Image())
+}
+
+// Draw the image for the draw menu.
+func DrawDrawMenu(width, height int) {
+	dc := gg.NewContext(width, height)
+
+	dc.SetHexColor(gridBackgroundColor)
+	dc.Clear()
+
+	// Load the font
+	if err := dc.LoadFontFace("client/assets/font.ttf", SubtitleFontSize); err != nil {
+		log.Println("warning, couldn't load the font")
+	}
+
+	dc.SetHexColor(gridBorderColor)
+	dc.DrawStringAnchored("It's a draw...", float64(width/2), float64(height)/TitleYRatio, 0.5, 0.5)
+
+	DrawMenuImage = ebiten.NewImageFromImage(dc.Image())
 }

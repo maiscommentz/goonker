@@ -18,11 +18,11 @@ const (
 	sWaitingGame
 	sGamePlaying
 	sGameWin
-	sGameLose
+	sGameLoose
 	sGameDraw
 
 	// Network configuration
-	serverAddress = "ws://localhost:8080/ws"
+	serverAddress = "ws://localhost:8080/ws" // goonker.saikoon.ch
 	roomId        = "87DY68"
 )
 
@@ -77,7 +77,7 @@ func (g *Game) Update() error {
 			// Note: For WASM/Localhost testing use ws://localhost:8080/ws?room=87DY68
 			go func() {
 				g.state = sWaitingGame
-				err := g.netClient.Connect("ws://localhost:8080/ws", "87DY68", false) // 172.20.10.2
+				err := g.netClient.Connect(serverAddress, roomId, false)
 				if err != nil {
 					g.state = sMainMenu
 					log.Println("Connection failed:", err)
@@ -136,11 +136,11 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	case sGamePlaying:
 		ui.RenderGame(screen, g.grid, g.isMyTurn)
 	case sGameWin:
-		ui.RenderGame(screen, g.grid, g.isMyTurn)
-	case sGameLose:
-		ui.RenderGame(screen, g.grid, g.isMyTurn)
+		ui.RenderWin(screen)
+	case sGameLoose:
+		ui.RenderLoose(screen)
 	case sGameDraw:
-		ui.RenderGame(screen, g.grid, g.isMyTurn)
+		ui.RenderDraw(screen)
 	}
 }
 
@@ -189,7 +189,7 @@ func (g *Game) handleNetwork() {
 				g.state = sGameDraw
 				log.Println("It's a Draw!")
 			} else {
-				g.state = sGameLose
+				g.state = sGameLoose
 				log.Println("You Lose!")
 			}
 		}

@@ -121,3 +121,18 @@ func RenderGame(screen *ebiten.Image, grid *Grid, myTurn bool) {
 		text.Draw(screen, msg, GameFont, op)
 	}
 }
+
+// Render win screen.
+func RenderWin(screen *ebiten.Image) {
+	screen.DrawImage(WinMenuImage, nil)
+}
+
+// Render loose screen.
+func RenderLoose(screen *ebiten.Image) {
+	screen.DrawImage(LooseMenuImage, nil)
+}
+
+// Render draw screen.
+func RenderDraw(screen *ebiten.Image) {
+	screen.DrawImage(DrawMenuImage, nil)
+}
