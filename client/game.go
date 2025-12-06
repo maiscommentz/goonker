@@ -22,7 +22,7 @@ const (
 	sGameDraw
 
 	// Network configuration
-	serverAddress = "ws://localhost:8080/ws" // goonker.saikoon.ch
+	serverAddress = "ws://goonker.saikoon.ch/ws" // goonker.saikoon.ch
 	roomId        = "87DY68"
 	isBotGame     = true
 )
