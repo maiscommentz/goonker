@@ -125,13 +125,27 @@ func (r *Room) listenPlayer(pid common.PlayerID, conn *websocket.Conn) {
 		}
 
 		// Handle Click messages
-		if packet.Type == common.MsgClick {
+		switch packet.Type {
+		case common.MsgClick:
 			var payload common.ClickPayload
 			if err := json.Unmarshal(packet.Data, &payload); err == nil {
 				r.handleMove(pid, payload.X, payload.Y)
 			}
+		case common.MsgGetRooms:
+			r.sendRooms(conn)
+		default:
+			log.Printf("Room %s: Unknown message type: %s", r.ID, packet.Type)
 		}
 	}
+}
+
+// sendRooms sends the available rooms to the client.
+func (r *Room) sendRooms(conn *websocket.Conn) {
+	r.mutex.Lock()
+	defer r.mutex.Unlock()
+	rooms := GlobalHub.GetAvailableRooms()
+	payload := common.RoomsPayload{Rooms: rooms}
+	r.sendJson(conn, common.MsgRooms, payload)
 }
 
 // handleMove coordinates game logic updates and notifications.
@@ -169,8 +183,6 @@ func (r *Room) handleMove(pid common.PlayerID, x, y int) {
 		}(logicSnapshot) // Pass a snapshot to avoid race conditions
 	}
 }
-
-// Broadcasting helper functions
 
 // broadcastGameStart notifies all players that the game is starting.
 func (r *Room) broadcastGameStart() {

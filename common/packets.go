@@ -20,6 +20,8 @@ const (
 // Message types
 const (
 	MsgJoin      = "join"       // Client -> Server: "I want to join room X"
+	MsgGetRooms  = "get_rooms"  // Client -> Server: "Get available rooms"
+	MsgRooms     = "rooms"      // Server -> Client: "Available rooms"
 	MsgGameStart = "game_start" // Server -> Client: "Match found, you are X"
 	MsgClick     = "click"      // Client -> Server: "I clicked cell 4"
 	MsgUpdate    = "update"     // Server -> Client: "New board state"
@@ -58,4 +60,9 @@ type JoinPayload struct {
 // GameOverPayload is sent by server when game ends.
 type GameOverPayload struct {
 	Winner PlayerID `json:"winner"` // Who won? 0 for draw, 1 or 2 for players
+}
+
+// RoomsPayload is sent by server to notify available rooms.
+type RoomsPayload struct {
+	Rooms map[string]*string `json:"rooms"`
 }

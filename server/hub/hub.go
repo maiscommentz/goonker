@@ -39,3 +39,16 @@ func (h *Hub) RemoveRoom(roomID string) {
 	defer h.mutex.Unlock()
 	delete(h.rooms, roomID)
 }
+
+// GetAvailableRooms returns a map of the rooms that are not full
+func (h *Hub) GetAvailableRooms() map[string]*string {
+	h.mutex.Lock()
+	defer h.mutex.Unlock()
+	availableRooms := make(map[string]*string)
+	for roomID := range h.rooms {
+		if !h.rooms[roomID].IsFull() {
+			availableRooms[roomID] = &roomID
+		}
+	}
+	return availableRooms
+}
