@@ -55,17 +55,21 @@ func GetBotMove(logic *GameLogic) (int, int) {
 func minimax(board [common.BoardSize][common.BoardSize]common.PlayerID, depth int, isMaximizing bool) int {
 	simulatedGame := &GameLogic{Board: board}
 
+	// Check for win
 	if simulatedGame.checkWin(common.P2) {
 		return MaxDepth - depth
 	}
+	// Check for loss
 	if simulatedGame.checkWin(common.P1) {
 		return depth - MaxDepth
 	}
+	// Check for draw
 	if isBoardFull(board) {
 		return 0
 	}
 
 	if isMaximizing {
+		// Maximize score for bot
 		maxEval := math.Inf(-1)
 		for x := range common.BoardSize {
 			for y := range common.BoardSize {
@@ -79,6 +83,7 @@ func minimax(board [common.BoardSize][common.BoardSize]common.PlayerID, depth in
 		}
 		return int(maxEval)
 	} else {
+		// Minimize score for opponent
 		minEval := math.Inf(1)
 		for x := range common.BoardSize {
 			for y := range common.BoardSize {
@@ -94,7 +99,7 @@ func minimax(board [common.BoardSize][common.BoardSize]common.PlayerID, depth in
 	}
 }
 
-// Aide pour savoir si le plateau est rempli
+// isBoardFull is a helper to check if the board is full
 func isBoardFull(board [common.BoardSize][common.BoardSize]common.PlayerID) bool {
 	for x := range common.BoardSize {
 		for y := range common.BoardSize {

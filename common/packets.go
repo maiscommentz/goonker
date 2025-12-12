@@ -3,7 +3,7 @@ package common
 import "encoding/json"
 
 // Represents a player in the game
-type PlayerID int
+type PlayerID byte
 
 // PlayerID constants
 const (
