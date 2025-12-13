@@ -91,7 +91,10 @@ func (am *AudioManager) LoadSound(name, path string) error {
 func (am *AudioManager) Play(name string) {
 	if p, ok := am.players[name]; ok {
 		if !p.IsPlaying() {
-			p.Rewind()
+			err := p.Rewind()
+			if err != nil {
+				log.Printf("Error rewinding audio '%s': %v", name, err)
+			}
 			p.Play()
 		}
 	} else {
@@ -104,7 +107,10 @@ func (am *AudioManager) Stop(name string) {
 	if p, ok := am.players[name]; ok {
 		if p.IsPlaying() {
 			p.Pause()
-			p.Rewind()
+			err := p.Rewind()
+			if err != nil {
+				log.Printf("Error rewinding audio '%s': %v", name, err)
+			}
 		}
 	}
 }

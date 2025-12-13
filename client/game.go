@@ -261,5 +261,8 @@ func (g *Game) initUIElements() {
 
 func (g *Game) initAudio() {
 	g.audioManager = audio.NewAudioManager()
-	g.audioManager.LoadSound("click_button", "client/assets/click_button.wav")
+	err := g.audioManager.LoadSound("click_button", "client/assets/click_button.wav")
+	if err != nil {
+		log.Printf("Error loading sound: %v", err)
+	}
 }

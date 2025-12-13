@@ -82,7 +82,9 @@ func NewButton(x, y, w, h float64, text string) *Button {
 	dc.SetHexColor(gridBorderColor)
 	dc.Fill()
 
-	dc.LoadFontFace("client/assets/font.ttf", SubtitleFontSize)
+	if err := dc.LoadFontFace("client/assets/font.ttf", SubtitleFontSize); err != nil {
+		log.Printf("Error loading font: %v", err)
+	}
 	dc.SetHexColor(gridBackgroundColor)
 	dc.DrawStringAnchored(text, w/2, h/2, 0.5, ButtonTextYAnchor)
 
@@ -131,7 +133,7 @@ func (m *PlayMenu) Draw(screen *ebiten.Image) {
 	screen.DrawImage(PlayMenuImage, nil)
 
 	for i, room := range m.Rooms {
-		log.Printf("%d %s", i, room)
+		log.Printf("%d %+v", i, room)
 		room.Draw(screen, i)
 	}
 }
