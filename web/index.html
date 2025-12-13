@@ -8,7 +8,7 @@
     <script>
         const go = new Go();
         WebAssembly.instantiateStreaming(
-            fetch("demo.wasm"), go.importObject).then((result) => {
+            fetch("goonker.wasm"), go.importObject).then((result) => {
                 go.run(result.instance);
             });
     </script>
