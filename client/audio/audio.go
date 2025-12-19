@@ -1,9 +1,10 @@
 package audio
 
 import (
+	"Goonker/client/assets"
 	"bytes"
+	"io/fs"
 	"log"
-	"os"
 
 	"github.com/hajimehoshi/ebiten/v2/audio"
 	"github.com/hajimehoshi/ebiten/v2/audio/mp3"
@@ -21,6 +22,7 @@ const (
 type AudioManager struct {
 	context *audio.Context
 	players map[string]*audio.Player
+	assets  fs.FS
 }
 
 // NewAudioManager creates a new audio manager
@@ -28,25 +30,26 @@ func NewAudioManager() *AudioManager {
 	return &AudioManager{
 		context: audio.NewContext(SampleRate),
 		players: make(map[string]*audio.Player),
+		assets:  assets.AssetsFS,
 	}
 }
 
 // LoadMusic loads a mp3 music file and creates a player for it
 func (am *AudioManager) LoadMusic(name, path string) error {
 	// Read the file
-	b, err := os.ReadFile(path)
+	binData, err := fs.ReadFile(am.assets, path)
 	if err != nil {
 		return err
 	}
 
 	// Decode the MP3 file
-	d, err := mp3.DecodeWithSampleRate(SampleRate, bytes.NewReader(b))
+	dataStream, err := mp3.DecodeWithSampleRate(SampleRate, bytes.NewReader(binData))
 	if err != nil {
 		return err
 	}
 
 	// Create a loop
-	loop := audio.NewInfiniteLoop(d, d.Length())
+	loop := audio.NewInfiniteLoop(dataStream, dataStream.Length())
 
 	// Create a player
 	player, err := am.context.NewPlayer(loop)
@@ -64,19 +67,19 @@ func (am *AudioManager) LoadMusic(name, path string) error {
 // LoadSound loads a wav sound file and creates a player for it
 func (am *AudioManager) LoadSound(name, path string) error {
 	// Read the file
-	b, err := os.ReadFile(path)
+	binData, err := fs.ReadFile(am.assets, path)
 	if err != nil {
 		return err
 	}
 
 	// Decode the wav file
-	d, err := wav.DecodeWithSampleRate(SampleRate, bytes.NewReader(b))
+	dataStream, err := wav.DecodeWithSampleRate(SampleRate, bytes.NewReader(binData))
 	if err != nil {
 		return err
 	}
 
 	// Create a player
-	player, err := am.context.NewPlayer(d)
+	player, err := am.context.NewPlayer(dataStream)
 	if err != nil {
 		return err
 	}
