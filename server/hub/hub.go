@@ -40,16 +40,15 @@ func (h *Hub) RemoveRoom(roomID string) {
 	delete(h.rooms, roomID)
 }
 
-// GetAvailableRooms returns a map of the rooms IDs and the amount of players in it
+// GetAvailableRooms returns a slice of the room IDs
 // If the room is full, it is not included in the result
-func (h *Hub) GetAvailableRooms() map[string]int {
+func (h *Hub) GetAvailableRooms() []string {
 	h.mutex.Lock()
 	defer h.mutex.Unlock()
-	availableRooms := make(map[string]int)
+	var availableRooms []string
 	for roomID := range h.rooms {
 		if !h.rooms[roomID].IsFull() {
-			playerCount := len(h.rooms[roomID].Players)
-			availableRooms[roomID] = playerCount
+			availableRooms = append(availableRooms, roomID)
 		}
 	}
 	return availableRooms

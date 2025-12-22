@@ -219,10 +219,10 @@ func (g *Game) handleNetwork() {
 			g.roomsMenu.Rooms = nil
 
 			// Update rooms list
-			for roomId, playerCount := range p.Rooms {
-				log.Printf("%d %s", playerCount, roomId)
+			for _, roomId := range p.Rooms {
+				log.Printf("%s", roomId)
 				// Initialize
-				room := ui.NewRoom(roomId, playerCount)
+				room := ui.NewRoom(roomId)
 				g.roomsMenu.Rooms = append(g.roomsMenu.Rooms, room)
 			}
 

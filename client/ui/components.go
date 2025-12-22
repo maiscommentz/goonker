@@ -62,10 +62,9 @@ type RoomsMenu struct {
 }
 
 type Room struct {
-	JoinBtn     *Button
-	Id          string
-	PlayerCount int
-	Image       *ebiten.Image
+	JoinBtn *Button
+	Id      string
+	Image   *ebiten.Image
 }
 
 type Grid struct {
@@ -107,15 +106,14 @@ func NewButton(x, y, w, h float64, text string, fontSize float64) *Button {
 }
 
 // Constructor for the room.
-func NewRoom(id string, playerCount int) *Room {
+func NewRoom(id string) *Room {
 	// Room row dimensions
 	width := WindowWidth / 2
 	height := TitleFontSize
 
 	// Initialize room
 	room := &Room{
-		Id:          id,
-		PlayerCount: playerCount,
+		Id: id,
 	}
 
 	dc := gg.NewContext(width, height)
