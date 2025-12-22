@@ -29,7 +29,7 @@ const (
 
 	// Menu
 	TitleYRatio      = 5
-	TitleYRatioRooms = 6
+	TitleYRatioRooms = 8
 )
 
 var (

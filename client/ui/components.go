@@ -24,6 +24,11 @@ const (
 	RoomsMenuCreateRoomBtnY = 310.0
 	RoomsMenuBtnX           = 50.0
 
+	// Rooms list
+	RoomsLineWidth  = 2
+	RoomsRowPadding = 10
+	RoomsRowGap     = 70.0
+
 	// Spinning wheel parameters
 	WheelTintRed   = 0.8
 	WheelTintGreen = 0.8
@@ -60,6 +65,7 @@ type Room struct {
 	JoinBtn     *Button
 	Id          string
 	PlayerCount int
+	Image       *ebiten.Image
 }
 
 type Grid struct {
@@ -77,7 +83,7 @@ type Drawable interface {
 }
 
 // Constructor for the button.
-func NewButton(x, y, w, h float64, text string) *Button {
+func NewButton(x, y, w, h float64, text string, fontSize float64) *Button {
 	b := &Button{
 		X: x, Y: y, Width: w, Height: h,
 		Text: text,
@@ -89,7 +95,7 @@ func NewButton(x, y, w, h float64, text string) *Button {
 	dc.SetHexColor(gridBorderColor)
 	dc.Fill()
 
-	if err := dc.LoadFontFace("client/assets/font.ttf", SubtitleFontSize); err != nil {
+	if err := dc.LoadFontFace("client/assets/font.ttf", fontSize); err != nil {
 		log.Printf("Error loading font: %v", err)
 	}
 	dc.SetHexColor(gridBackgroundColor)
@@ -102,10 +108,37 @@ func NewButton(x, y, w, h float64, text string) *Button {
 
 // Constructor for the room.
 func NewRoom(id string, playerCount int) *Room {
+	// Room row dimensions
+	width := WindowWidth / 2
+	height := TitleFontSize
+
+	// Initialize room
 	room := &Room{
 		Id:          id,
 		PlayerCount: playerCount,
 	}
+
+	dc := gg.NewContext(width, height)
+
+	// Draw bottom separator line
+	dc.SetHexColor(gridBorderColor)
+	dc.SetLineWidth(RoomsLineWidth)
+	dc.DrawLine(0, float64(height), float64(width), float64(height))
+	dc.Stroke()
+
+	// Load font for room name
+	if err := dc.LoadFontFace("client/assets/font.ttf", TextFontSize); err != nil {
+		log.Printf("Error loading font: %v", err)
+	}
+
+	// Draw Room Name (Left aligned)
+	dc.SetHexColor(gridBorderColor)
+	dc.DrawStringAnchored(id, RoomsRowPadding, float64(height)/3, 0.0, 0.5)
+
+	room.Image = ebiten.NewImageFromImage(dc.Image())
+
+	// Initialize Join Button
+	room.JoinBtn = NewButton(0, 0, ButtonWidth/3, ButtonHeight/2, "Join", TextFontSize)
 
 	return room
 }
@@ -118,8 +151,8 @@ func NewMainMenu() *MainMenu {
 	centerX := (float64(WindowWidth) - ButtonWidth) / 2
 
 	// Create buttons
-	menu.BtnPlay = NewButton(centerX, MainMenuPlayBtnY, ButtonWidth, ButtonHeight, "Play")
-	menu.BtnQuit = NewButton(centerX, MainMenuQuitBtnY, ButtonWidth, ButtonHeight, "Quit")
+	menu.BtnPlay = NewButton(centerX, MainMenuPlayBtnY, ButtonWidth, ButtonHeight, "Play", SubtitleFontSize)
+	menu.BtnQuit = NewButton(centerX, MainMenuQuitBtnY, ButtonWidth, ButtonHeight, "Quit", SubtitleFontSize)
 
 	return menu
 }
@@ -129,9 +162,9 @@ func NewRoomsMenu() *RoomsMenu {
 	menu := &RoomsMenu{}
 
 	// Create buttons
-	menu.BtnBack = NewButton(RoomsMenuBtnX, RoomsMenuBackBtnY, ButtonWidth, ButtonHeight, "Back")
-	menu.BtnPlayBot = NewButton(RoomsMenuBtnX, RoomsMenuPlayBotBtnY, ButtonWidth, ButtonHeight, "Against Bot")
-	menu.BtnCreateRoom = NewButton(RoomsMenuBtnX, RoomsMenuCreateRoomBtnY, ButtonWidth, ButtonHeight, "Create Room")
+	menu.BtnBack = NewButton(RoomsMenuBtnX, RoomsMenuBackBtnY, ButtonWidth, ButtonHeight, "Back", SubtitleFontSize)
+	menu.BtnPlayBot = NewButton(RoomsMenuBtnX, RoomsMenuPlayBotBtnY, ButtonWidth, ButtonHeight, "Against Bot", SubtitleFontSize)
+	menu.BtnCreateRoom = NewButton(RoomsMenuBtnX, RoomsMenuCreateRoomBtnY, ButtonWidth, ButtonHeight, "Create Room", SubtitleFontSize)
 
 	return menu
 }
@@ -164,13 +197,22 @@ func (m *RoomsMenu) Draw(screen *ebiten.Image) {
 
 // Draw the room at the specified index
 func (r *Room) Draw(screen *ebiten.Image, index int) {
-	// List on the right side
-	// TODO: it doenst show for the moment
-	listX := float64(WindowWidth/2) + 50.0
-	startY := 150.0
-	gap := 70.0
+	// Constants for layout
+	listX := float64(RoomsMenuBtnX + ButtonWidth + RoomsMenuBtnX)
+	listY := float64(RoomsMenuBackBtnY)
+	yPos := listY + float64(index)*RoomsRowGap
 
-	r.JoinBtn = NewButton(listX, startY+float64(index)*gap, ButtonWidth, ButtonHeight, r.Id)
+	// Draw the Row Image (Name + Line)
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Translate(listX, yPos)
+	screen.DrawImage(r.Image, op)
+
+	// Update Button Position
+	btnX := listX + listX + ButtonWidth/2
+	r.JoinBtn.X = btnX
+	r.JoinBtn.Y = yPos
+
+	// Draw Button
 	r.JoinBtn.Draw(screen)
 }
 
