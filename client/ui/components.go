@@ -2,11 +2,14 @@ package ui
 
 import (
 	"Goonker/common"
+	"fmt"
+	"image/color"
 	"log"
 
 	"github.com/fogleman/gg"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	"github.com/hajimehoshi/ebiten/v2/text/v2"
 )
 
 const (
@@ -21,7 +24,8 @@ const (
 	MainMenuQuitBtnY        = 280.0
 	RoomsMenuBackBtnY       = 150.0
 	RoomsMenuPlayBotBtnY    = 230.0
-	RoomsMenuCreateRoomBtnY = 310.0
+	RoomsMenuJoinGameBtnY   = 310.0
+	RoomsMenuCreateRoomBtnY = 390.0
 	RoomsMenuBtnX           = 50.0
 
 	// Rooms list
@@ -34,8 +38,11 @@ const (
 	WheelTintGreen = 0.8
 	WheelTintBlue  = 1.0
 
+	// Room ID text height
+	WaitingMenuRoomTextY = (float64(WindowHeight) / 2.0) - 100
+
 	// Assets
-	FontPath = "client/assets/font.ttf"
+	FontPath = "font.ttf"
 )
 
 type Button struct {
@@ -51,6 +58,7 @@ type MainMenu struct {
 
 type WaitingMenu struct {
 	RotationAngle float64
+	RoomId        string
 }
 
 type RoomsMenu struct {
@@ -58,6 +66,7 @@ type RoomsMenu struct {
 	RoomIndex     int
 	BtnPlayBot    *Button
 	BtnCreateRoom *Button
+	BtnJoinGame   *Button
 	BtnBack       *Button
 }
 
@@ -94,9 +103,7 @@ func NewButton(x, y, w, h float64, text string, fontSize float64) *Button {
 	dc.SetHexColor(gridBorderColor)
 	dc.Fill()
 
-	if err := dc.LoadFontFace("client/assets/font.ttf", fontSize); err != nil {
-		log.Printf("Error loading font: %v", err)
-	}
+	dc.SetFontFace(FontFace)
 	dc.SetHexColor(gridBackgroundColor)
 	dc.DrawStringAnchored(text, w/2, h/2, 0.5, ButtonTextYAnchor)
 
@@ -125,7 +132,7 @@ func NewRoom(id string) *Room {
 	dc.Stroke()
 
 	// Load font for room name
-	if err := dc.LoadFontFace("client/assets/font.ttf", TextFontSize); err != nil {
+	if err := dc.LoadFontFace(FontPath, TextFontSize); err != nil {
 		log.Printf("Error loading font: %v", err)
 	}
 
@@ -163,6 +170,7 @@ func NewRoomsMenu() *RoomsMenu {
 	menu.BtnBack = NewButton(RoomsMenuBtnX, RoomsMenuBackBtnY, ButtonWidth, ButtonHeight, "Back", SubtitleFontSize)
 	menu.BtnPlayBot = NewButton(RoomsMenuBtnX, RoomsMenuPlayBotBtnY, ButtonWidth, ButtonHeight, "Against Bot", SubtitleFontSize)
 	menu.BtnCreateRoom = NewButton(RoomsMenuBtnX, RoomsMenuCreateRoomBtnY, ButtonWidth, ButtonHeight, "Create Room", SubtitleFontSize)
+	menu.BtnJoinGame = NewButton(RoomsMenuBtnX, RoomsMenuJoinGameBtnY, ButtonWidth, ButtonHeight, "Join Game", SubtitleFontSize)
 
 	return menu
 }
@@ -186,6 +194,7 @@ func (m *RoomsMenu) Draw(screen *ebiten.Image) {
 	screen.DrawImage(RoomsMenuImage, nil)
 	m.BtnPlayBot.Draw(screen)
 	m.BtnCreateRoom.Draw(screen)
+	m.BtnJoinGame.Draw(screen)
 	m.BtnBack.Draw(screen)
 
 	for i, room := range m.Rooms {
@@ -226,25 +235,36 @@ func (r *Room) Draw(screen *ebiten.Image, index int) {
 // Draw the waiting menu to the screen.
 func (waitingMenu *WaitingMenu) Draw(screen *ebiten.Image) {
 	screen.DrawImage(WaitingMenuImage, nil)
+	screenCenterX := float64(WindowWidth) / 2.0
+	screenCenterY := float64(WindowHeight) / 2.0
 
+	// Draw the spinning wheel
 	w := WheelImage.Bounds().Dx()
 	h := WheelImage.Bounds().Dy()
 	halfW := float64(w) / 2.0
 	halfH := float64(h) / 2.0
 
-	op := &ebiten.DrawImageOptions{}
+	wheelOpt := &ebiten.DrawImageOptions{}
 
-	op.GeoM.Translate(-halfW, -halfH)
+	wheelOpt.GeoM.Translate(-halfW, -halfH)
+	wheelOpt.GeoM.Rotate(waitingMenu.RotationAngle)
+	wheelOpt.GeoM.Translate(screenCenterX, screenCenterY)
+	wheelOpt.ColorScale.Scale(WheelTintRed, WheelTintGreen, WheelTintBlue, 1)
 
-	op.GeoM.Rotate(waitingMenu.RotationAngle)
+	screen.DrawImage(WheelImage, wheelOpt)
 
-	screenCenterX := float64(WindowWidth) / 2.0
-	screenCenterY := float64(WindowHeight) / 2.0
-	op.GeoM.Translate(screenCenterX, screenCenterY)
+	// Draw the text
+	waitingRoomText := fmt.Sprintf("Room ID : %s", waitingMenu.RoomId)
+	textOpt := &text.DrawOptions{}
 
-	op.ColorScale.Scale(WheelTintRed, WheelTintGreen, WheelTintBlue, 1)
+	textWidth, _ := text.Measure(waitingRoomText, GameFont, textOpt.LineSpacing)
+	x := (screenCenterX - (textWidth / 2))
 
-	screen.DrawImage(WheelImage, op)
+	textOpt.GeoM.Translate(x, WaitingMenuRoomTextY)
+
+	textOpt.ColorScale.ScaleWithColor(color.Black)
+
+	text.Draw(screen, waitingRoomText, GameFont, textOpt)
 }
 
 // Check if a button is clicked.

@@ -1,11 +1,12 @@
 package ui
 
 import (
+	"Goonker/client/assets"
 	"Goonker/common"
 	"bytes"
 	"image/color"
+	"io/fs"
 	"log"
-	"os"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
@@ -35,7 +36,7 @@ var (
 func Init() {
 	InitImages()
 
-	fontData, err := os.ReadFile("client/assets/font.ttf")
+	fontData, err := fs.ReadFile(assets.AssetsFS, FontPath)
 	if err != nil {
 		log.Fatal(err)
 	}

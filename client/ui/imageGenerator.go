@@ -1,13 +1,16 @@
 package ui
 
 import (
+	"Goonker/client/assets"
 	"Goonker/common"
 	"image/color"
 	"log"
 	"math"
 
 	"github.com/fogleman/gg"
+	"github.com/golang/freetype/truetype"
 	"github.com/hajimehoshi/ebiten/v2"
+	"golang.org/x/image/font"
 )
 
 const (
@@ -33,6 +36,7 @@ const (
 )
 
 var (
+	FontFace         font.Face
 	GridImage        *ebiten.Image
 	CircleImage      *ebiten.Image
 	CrossImage       *ebiten.Image
@@ -49,6 +53,8 @@ var (
 
 // Initializes the images.
 func InitImages() {
+	initFont()
+
 	DrawGrid(GridCol)
 	DrawCircle()
 	DrawCross()
@@ -61,6 +67,25 @@ func InitImages() {
 	DrawDrawMenu(WindowWidth, WindowHeight)
 	DrawRoomsMenu(WindowWidth, WindowHeight)
 	DrawNoRoomsText()
+}
+
+func initFont() {
+	// Read the font file from the embed filesystem
+	fontBytes, err := assets.AssetsFS.ReadFile("font.ttf")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Parse the font
+	font, err := truetype.Parse(fontBytes)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Create the font face
+	FontFace = truetype.NewFace(font, &truetype.Options{
+		Size: 24,
+	})
 }
 
 // Draw the image for the grid.
@@ -170,10 +195,7 @@ func DrawMainMenu(width, height int, title string) {
 	dc.SetHexColor(gridBackgroundColor)
 	dc.Clear()
 
-	// Load the font
-	if err := dc.LoadFontFace("client/assets/font.ttf", TitleFontSize); err != nil {
-		log.Println("warning, couldn't load the font")
-	}
+	dc.SetFontFace(FontFace)
 
 	// Game title
 	dc.SetHexColor(gridBorderColor)
@@ -189,10 +211,7 @@ func DrawRoomsMenu(width, height int) {
 	dc.SetHexColor(gridBackgroundColor)
 	dc.Clear()
 
-	// Load the font
-	if err := dc.LoadFontFace("client/assets/font.ttf", SubtitleFontSize); err != nil {
-		log.Println("warning, couldn't load the font")
-	}
+	dc.SetFontFace(FontFace)
 
 	dc.SetHexColor(gridBorderColor)
 	dc.DrawStringAnchored("Choose a room", float64(width/2), float64(height)/TitleYRatioRooms, 0.5, 0.5)
@@ -207,10 +226,7 @@ func DrawWaitingMenu(width, height int) {
 	dc.SetHexColor(gridBackgroundColor)
 	dc.Clear()
 
-	// Load the font
-	if err := dc.LoadFontFace("client/assets/font.ttf", SubtitleFontSize); err != nil {
-		log.Println("warning, couldn't load the font")
-	}
+	dc.SetFontFace(FontFace)
 
 	dc.SetHexColor(gridBorderColor)
 	dc.DrawStringAnchored("Waiting for another player...", float64(width/2), float64(height)/TitleYRatio, 0.5, 0.5)
@@ -227,10 +243,7 @@ func DrawNoRoomsText() {
 	dc.SetHexColor(gridBackgroundColor)
 	dc.Clear()
 
-	// Load the font
-	if err := dc.LoadFontFace("client/assets/font.ttf", SubtitleFontSize); err != nil {
-		log.Println("warning, couldn't load the font")
-	}
+	dc.SetFontFace(FontFace)
 
 	dc.SetHexColor(gridBorderColor)
 	dc.DrawStringAnchored("No rooms available :(", float64(width/2), float64(height)/2, 0.5, 0.5)
@@ -245,10 +258,7 @@ func DrawGameMenu(width, height int) {
 	dc.SetHexColor(gridBackgroundColor)
 	dc.Clear()
 
-	// Load the font
-	if err := dc.LoadFontFace("client/assets/font.ttf", SubtitleFontSize); err != nil {
-		log.Println("warning, couldn't load the font")
-	}
+	dc.SetFontFace(FontFace)
 
 	dc.SetHexColor(gridBorderColor)
 	dc.DrawStringAnchored("Playing Goonker", (float64(width/2)-(gridSize/2))/2, float64(height)/TitleYRatio, 0.5, 0.5)
@@ -263,10 +273,7 @@ func DrawWinMenu(width, height int) {
 	dc.SetHexColor(gridBackgroundColor)
 	dc.Clear()
 
-	// Load the font
-	if err := dc.LoadFontFace("client/assets/font.ttf", SubtitleFontSize); err != nil {
-		log.Println("warning, couldn't load the font")
-	}
+	dc.SetFontFace(FontFace)
 
 	dc.SetHexColor(gridBorderColor)
 	dc.DrawStringAnchored("You won !", float64(width/2), float64(height)/TitleYRatio, 0.5, 0.5)
@@ -281,10 +288,7 @@ func DrawLoseMenu(width, height int) {
 	dc.SetHexColor(gridBackgroundColor)
 	dc.Clear()
 
-	// Load the font
-	if err := dc.LoadFontFace("client/assets/font.ttf", SubtitleFontSize); err != nil {
-		log.Println("warning, couldn't load the font")
-	}
+	dc.SetFontFace(FontFace)
 
 	dc.SetHexColor(gridBorderColor)
 	dc.DrawStringAnchored("You lost :(", float64(width/2), float64(height)/TitleYRatio, 0.5, 0.5)
@@ -299,10 +303,7 @@ func DrawDrawMenu(width, height int) {
 	dc.SetHexColor(gridBackgroundColor)
 	dc.Clear()
 
-	// Load the font
-	if err := dc.LoadFontFace("client/assets/font.ttf", SubtitleFontSize); err != nil {
-		log.Println("warning, couldn't load the font")
-	}
+	dc.SetFontFace(FontFace)
 
 	dc.SetHexColor(gridBorderColor)
 	dc.DrawStringAnchored("It's a draw...", float64(width/2), float64(height)/TitleYRatio, 0.5, 0.5)
