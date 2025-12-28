@@ -25,6 +25,9 @@ const (
 
 	// Positions
 	PlayerTurnTextYPos = 150
+
+	// Assets
+	FontPath = "font.ttf"
 )
 
 var (

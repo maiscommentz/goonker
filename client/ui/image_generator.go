@@ -66,7 +66,6 @@ func InitImages() {
 	DrawLoseMenu(WindowWidth, WindowHeight)
 	DrawDrawMenu(WindowWidth, WindowHeight)
 	DrawRoomsMenu(WindowWidth, WindowHeight)
-	DrawNoRoomsText()
 }
 
 func initFont() {
@@ -205,21 +204,6 @@ func DrawMainMenu(width, height int, title string) {
 }
 
 // Draw the image for the waiting menu.
-func DrawRoomsMenu(width, height int) {
-	dc := gg.NewContext(width, height)
-
-	dc.SetHexColor(gridBackgroundColor)
-	dc.Clear()
-
-	dc.SetFontFace(FontFace)
-
-	dc.SetHexColor(gridBorderColor)
-	dc.DrawStringAnchored("Choose a room", float64(width/2), float64(height)/TitleYRatioRooms, 0.5, 0.5)
-
-	RoomsMenuImage = ebiten.NewImageFromImage(dc.Image())
-}
-
-// Draw the image for the waiting menu.
 func DrawWaitingMenu(width, height int) {
 	dc := gg.NewContext(width, height)
 
@@ -232,23 +216,6 @@ func DrawWaitingMenu(width, height int) {
 	dc.DrawStringAnchored("Waiting for another player...", float64(width/2), float64(height)/TitleYRatio, 0.5, 0.5)
 
 	WaitingMenuImage = ebiten.NewImageFromImage(dc.Image())
-}
-
-// Draw the image for the no rooms text.
-func DrawNoRoomsText() {
-	width := WindowWidth / 2
-	height := TitleFontSize
-	dc := gg.NewContext(width, height)
-
-	dc.SetHexColor(gridBackgroundColor)
-	dc.Clear()
-
-	dc.SetFontFace(FontFace)
-
-	dc.SetHexColor(gridBorderColor)
-	dc.DrawStringAnchored("No rooms available :(", float64(width/2), float64(height)/2, 0.5, 0.5)
-
-	NoRoomsImage = ebiten.NewImageFromImage(dc.Image())
 }
 
 // Draw the image for the game menu.
@@ -309,4 +276,19 @@ func DrawDrawMenu(width, height int) {
 	dc.DrawStringAnchored("It's a draw...", float64(width/2), float64(height)/TitleYRatio, 0.5, 0.5)
 
 	DrawMenuImage = ebiten.NewImageFromImage(dc.Image())
+}
+
+// Draw the image for the rooms menu.
+func DrawRoomsMenu(width, height int) {
+	dc := gg.NewContext(width, height)
+
+	dc.SetHexColor(gridBackgroundColor)
+	dc.Clear()
+
+	dc.SetFontFace(FontFace)
+
+	dc.SetHexColor(gridBorderColor)
+	dc.DrawStringAnchored("Choose a room", float64(width/2), RoomsMenuTextFieldY, 0.5, 0.5)
+
+	RoomsMenuImage = ebiten.NewImageFromImage(dc.Image())
 }

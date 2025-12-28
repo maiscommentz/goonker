@@ -136,12 +136,19 @@ func (g *Game) Update() error {
 			break
 		}
 
-		// Join a random room
 		if g.roomsMenu.BtnJoinGame.IsClicked() {
-			roomIndex := rand.Intn(roomsNbr)
-			roomId := g.roomsMenu.Rooms[roomIndex].Id
+
+			// Join the selected room
+			roomId := g.roomsMenu.RoomField.Text
+
+			// Join a random room if nothing was given
+			if roomId == "" {
+				roomIndex := rand.Intn(roomsNbr)
+				roomId = g.roomsMenu.Rooms[roomIndex].Id
+			}
+
 			err := g.netClient.JoinGame(roomId, false)
-			g.roomsMenu.RoomIndex = roomIndex
+			// g.roomsMenu.RoomIndex = roomIndex
 			if err != nil {
 				log.Println("Connection failed:", err)
 			}
