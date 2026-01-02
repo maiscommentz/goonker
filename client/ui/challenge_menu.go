@@ -1,6 +1,8 @@
 package ui
 
-import "Goonker/common"
+import (
+	"Goonker/common"
+)
 
 const (
 	AnswerButtonY  = 150
@@ -10,6 +12,8 @@ const (
 type ChallengeMenu struct {
 	Question string
 	Answers  []Button
+	//Duration *time.Duration
+	Clock Timer
 }
 
 func NewChallengeMenu(challenge common.ChallengePayload) *ChallengeMenu {

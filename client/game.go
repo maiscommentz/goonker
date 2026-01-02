@@ -198,6 +198,7 @@ func (g *Game) Update() error {
 
 		g.netClient.PlaceSymbol(cellX, cellY)
 	case sChallenge:
+		g.challengeMenu.Clock.Update()
 		for i, ansBtn := range g.challengeMenu.Answers {
 			if ansBtn.IsClicked() {
 				g.audioManager.Play("click_button")
@@ -282,6 +283,9 @@ func (g *Game) handleNetwork() {
 			log.Printf("Game Started! I am Player %d", g.mySymbol)
 
 		case common.MsgUpdate:
+			// Ensure the game state
+			g.state = sGamePlaying
+
 			var p common.UpdatePayload
 			if err := json.Unmarshal(packet.Data, &p); err != nil {
 				log.Printf("Failed to unmarshal %s: %v", packet.Type, err)
@@ -299,9 +303,17 @@ func (g *Game) handleNetwork() {
 				continue
 			}
 
-			// g.challenge = payload
 			g.challengeMenu = ui.NewChallengeMenu(payload)
 			g.state = sChallenge
+
+			g.challengeMenu.Clock = *ui.NewTimer(common.ChallengeTime * time.Second)
+			g.challengeMenu.Clock.OnEnd = func() {
+				g.state = sGamePlaying
+				err := g.netClient.AnswerChallenge(-1)
+				if err != nil {
+					log.Println("Connection failed:", err)
+				}
+			}
 		case common.MsgGameOver:
 			var p common.GameOverPayload
 			if err := json.Unmarshal(packet.Data, &p); err != nil {

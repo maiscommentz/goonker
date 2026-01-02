@@ -2,21 +2,6 @@ package common
 
 import "encoding/json"
 
-// Represents a player in the game
-type PlayerID byte
-
-// PlayerID constants
-const (
-	Empty PlayerID = 0
-	P1    PlayerID = 1 // X
-	P2    PlayerID = 2 // O
-)
-
-// Game constants
-const (
-	BoardSize = 3
-)
-
 // Message types
 const (
 	MsgJoin      = "join"       // Client -> Server: "I want to join room X"

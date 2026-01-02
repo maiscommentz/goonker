@@ -41,6 +41,8 @@ type Room struct {
 	// Challenge
 	challengedMove     common.ClickPayload
 	challengeAnswerKey int
+	challengedPlayer   common.PlayerID
+	challengeTimer     *time.Timer
 }
 
 // NewRoom creates a new Room instance.
@@ -136,6 +138,7 @@ func (r *Room) listenPlayer(pid common.PlayerID, conn *websocket.Conn) {
 			if err := json.Unmarshal(packet.Data, &payload); err == nil {
 				if r.Logic.ShouldTriggerChallenge(pid, payload.X, payload.Y) {
 					r.challengedMove = payload
+					r.challengedPlayer = pid
 					r.startChallenge(conn)
 				} else {
 					r.handleMove(pid, payload.X, payload.Y)
@@ -146,6 +149,9 @@ func (r *Room) listenPlayer(pid common.PlayerID, conn *websocket.Conn) {
 		case common.MsgAnswer:
 			var payload common.AnswerPayload
 			if err := json.Unmarshal(packet.Data, &payload); err == nil {
+				if r.challengeTimer != nil {
+					r.challengeTimer.Stop()
+				}
 				if payload.Answer == r.challengeAnswerKey {
 					log.Println("Challenge completed successfully")
 					r.Logic.DeleteMove(r.challengedMove.X, r.challengedMove.Y)
@@ -186,6 +192,15 @@ func (r *Room) startChallenge(conn *websocket.Conn) {
 	payload := common.ChallengePayload{Question: challenge.Question, Answers: challenge.Answers}
 	r.challengeAnswerKey = challenge.AnswerKey
 	r.sendJson(conn, common.MsgChallenge, payload)
+
+	r.challengeTimer = time.AfterFunc(common.ChallengeTime*time.Second, func() {
+		r.handleChallengeTimeout()
+	})
+}
+
+func (r *Room) handleChallengeTimeout() {
+	log.Println("Challenge time ran out")
+	r.handleMove(r.challengedPlayer, r.challengedMove.X, r.challengedMove.Y)
 }
 
 // handleMove coordinates game logic updates and notifications. Returns true if a challenge must start.

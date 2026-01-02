@@ -55,6 +55,8 @@ func Init() {
 		Source: gameFaceSource,
 		Size:   TextFontSize,
 	}
+
+	TimerInit()
 }
 
 // Render the main menu.
@@ -144,6 +146,9 @@ func RenderChallenge(screen *ebiten.Image, challenge *ChallengeMenu) {
 	op.GeoM.Translate(x, ChallengeQuestionY)
 	op.ColorScale.ScaleWithColor(color.Black)
 	text.Draw(screen, challenge.Question, GameFont, op)
+
+	// Timer
+	challenge.Clock.Draw(screen)
 
 	// Answers buttons
 	for _, ansBtn := range challenge.Answers {
