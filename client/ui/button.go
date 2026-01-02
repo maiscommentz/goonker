@@ -4,6 +4,7 @@ import (
 	"github.com/fogleman/gg"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	"golang.org/x/image/font"
 )
 
 const (
@@ -21,7 +22,7 @@ type Button struct {
 }
 
 // Constructor for the button.
-func NewButton(x, y, w, h float64, text string, fontSize float64) *Button {
+func NewButton(x, y, w, h float64, text string, fontFace font.Face) *Button {
 	b := &Button{
 		X: x, Y: y, Width: w, Height: h,
 		Text: text,
@@ -33,7 +34,7 @@ func NewButton(x, y, w, h float64, text string, fontSize float64) *Button {
 	dc.SetHexColor(gridBorderColor)
 	dc.Fill()
 
-	dc.SetFontFace(BigFontFace)
+	dc.SetFontFace(fontFace)
 	dc.SetHexColor(gridBackgroundColor)
 	dc.DrawStringAnchored(text, w/2, h/2, 0.5, ButtonTextYAnchor)
 

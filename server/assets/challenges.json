@@ -8,5 +8,45 @@
         "question": "How many cantons are there in Switzerland ?",
         "answers": ["32", "27", "26"],
         "answer_key": 2
+    },
+    {
+        "question": "Which planet is known as the 'Red Planet'?",
+        "answers": ["Venus", "Mars", "Jupiter"],
+        "answer_key": 1
+    },
+    {
+        "question": "What is the chemical symbol for Gold?",
+        "answers": ["Au", "Ag", "Fe"],
+        "answer_key": 0
+    },
+    {
+        "question": "In which year did the Titanic sink?",
+        "answers": ["1905", "1912", "1923"],
+        "answer_key": 1
+    },
+    {
+        "question": "What does HTTP stand for in website addresses?",
+        "answers": ["HyperText Transfer Protocol", "HyperText Transmission Process", "High Tech Transfer Protocol"],
+        "answer_key": 0
+    },
+    {
+        "question": "Which animal is the fastest land mammal?",
+        "answers": ["Lion", "Cheetah", "Gazelle"],
+        "answer_key": 1
+    },
+    {
+        "question": "Who painted the Mona Lisa?",
+        "answers": ["Vincent van Gogh", "Pablo Picasso", "Leonardo da Vinci"],
+        "answer_key": 2
+    },
+    {
+        "question": "What is the capital city of Japan?",
+        "answers": ["Seoul", "Beijing", "Tokyo"],
+        "answer_key": 2
+    },
+    {
+        "question": "Which programming language is primarily used for styling web pages?",
+        "answers": ["HTML", "CSS", "Python"],
+        "answer_key": 1
     }
 ]

@@ -48,12 +48,12 @@ func (waitingMenu *WaitingMenu) Draw(screen *ebiten.Image) {
 	waitingRoomText := fmt.Sprintf("Room ID : %s", waitingMenu.RoomId)
 	textOpt := &text.DrawOptions{}
 
-	textWidth, _ := text.Measure(waitingRoomText, GameFont, textOpt.LineSpacing)
+	textWidth, _ := text.Measure(waitingRoomText, SmallGameFont, textOpt.LineSpacing)
 	x := (screenCenterX - (textWidth / 2))
 
 	textOpt.GeoM.Translate(x, WaitingMenuRoomTextY)
 
 	textOpt.ColorScale.ScaleWithColor(color.Black)
 
-	text.Draw(screen, waitingRoomText, GameFont, textOpt)
+	text.Draw(screen, waitingRoomText, SmallGameFont, textOpt)
 }

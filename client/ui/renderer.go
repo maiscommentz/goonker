@@ -33,7 +33,8 @@ const (
 
 var (
 	gameFaceSource *text.GoTextFaceSource
-	GameFont       *text.GoTextFace
+	SmallGameFont  *text.GoTextFace
+	BigGameFont    *text.GoTextFace
 )
 
 // Init rendering components, like the images, the fonts...
@@ -51,9 +52,14 @@ func Init() {
 	}
 	gameFaceSource = src
 
-	GameFont = &text.GoTextFace{
+	SmallGameFont = &text.GoTextFace{
 		Source: gameFaceSource,
 		Size:   TextFontSize,
+	}
+
+	SmallGameFont = &text.GoTextFace{
+		Source: gameFaceSource,
+		Size:   SubtitleFontSize,
 	}
 
 	TimerInit()
@@ -123,7 +129,7 @@ func RenderGame(screen *ebiten.Image, grid *Grid, myTurn bool) {
 
 		op := &text.DrawOptions{}
 
-		w, _ := text.Measure(msg, GameFont, op.LineSpacing)
+		w, _ := text.Measure(msg, SmallGameFont, op.LineSpacing)
 
 		x := (float64((WindowWidth)/2) - (gridSize / 2) - w) / 2
 
@@ -131,7 +137,7 @@ func RenderGame(screen *ebiten.Image, grid *Grid, myTurn bool) {
 
 		op.ColorScale.ScaleWithColor(color.Black)
 
-		text.Draw(screen, msg, GameFont, op)
+		text.Draw(screen, msg, SmallGameFont, op)
 	}
 }
 
@@ -141,11 +147,11 @@ func RenderChallenge(screen *ebiten.Image, challenge *ChallengeMenu) {
 
 	// Question
 	op := &text.DrawOptions{}
-	w, _ := text.Measure(challenge.Question, GameFont, op.LineSpacing)
+	w, _ := text.Measure(challenge.Question, SmallGameFont, op.LineSpacing)
 	x := float64((WindowWidth - w) / 2)
 	op.GeoM.Translate(x, ChallengeQuestionY)
 	op.ColorScale.ScaleWithColor(color.Black)
-	text.Draw(screen, challenge.Question, GameFont, op)
+	text.Draw(screen, challenge.Question, SmallGameFont, op)
 
 	// Timer
 	challenge.Clock.Draw(screen)

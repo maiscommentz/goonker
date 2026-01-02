@@ -21,8 +21,8 @@ func NewMainMenu() *MainMenu {
 	centerX := (float64(WindowWidth) - ButtonWidth) / 2
 
 	// Create buttons
-	menu.BtnPlay = NewButton(centerX, MainMenuPlayBtnY, ButtonWidth, ButtonHeight, "Play", SubtitleFontSize)
-	menu.BtnQuit = NewButton(centerX, MainMenuQuitBtnY, ButtonWidth, ButtonHeight, "Quit", SubtitleFontSize)
+	menu.BtnPlay = NewButton(centerX, MainMenuPlayBtnY, ButtonWidth, ButtonHeight, "Play", BigFontFace)
+	menu.BtnQuit = NewButton(centerX, MainMenuQuitBtnY, ButtonWidth, ButtonHeight, "Quit", BigFontFace)
 
 	return menu
 }

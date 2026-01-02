@@ -51,7 +51,7 @@ func NewRoom(id string) *Room {
 	room.Image = ebiten.NewImageFromImage(dc.Image())
 
 	// Initialize Join Button
-	room.JoinBtn = NewButton(0, 0, ButtonWidth/3, ButtonHeight/2, "Join", TextFontSize)
+	room.JoinBtn = NewButton(0, 0, ButtonWidth/3, ButtonHeight/2, "Join", BigFontFace)
 
 	return room
 }

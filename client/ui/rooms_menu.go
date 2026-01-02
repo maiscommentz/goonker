@@ -47,10 +47,10 @@ func NewRoomsMenu() *RoomsMenu {
 	menu := &RoomsMenu{}
 
 	// Create buttons
-	menu.BtnCreateRoom = NewButton(RoomsMenuCreateRoomBtnX, RoomsMenuCreateRoomBtnY, ButtonWidth, ButtonHeight, "Create Room", SubtitleFontSize)
-	menu.BtnPlayBot = NewButton(RoomsMenuPlayBotBtnX, RoomsMenuPlayBotBtnY, ButtonWidth, ButtonHeight, "Against Bot", SubtitleFontSize)
-	menu.BtnJoinGame = NewButton(RoomsMenuJoinGameBtnX, RoomsMenuJoinGameBtnY, ButtonWidth, ButtonHeight, "Join Game", SubtitleFontSize)
-	menu.BtnBack = NewButton(RoomsMenuBackBtnX, RoomsMenuBackBtnY, ButtonWidth, ButtonHeight, "Back", SubtitleFontSize)
+	menu.BtnCreateRoom = NewButton(RoomsMenuCreateRoomBtnX, RoomsMenuCreateRoomBtnY, ButtonWidth, ButtonHeight, "Create Room", BigFontFace)
+	menu.BtnPlayBot = NewButton(RoomsMenuPlayBotBtnX, RoomsMenuPlayBotBtnY, ButtonWidth, ButtonHeight, "Against Bot", BigFontFace)
+	menu.BtnJoinGame = NewButton(RoomsMenuJoinGameBtnX, RoomsMenuJoinGameBtnY, ButtonWidth, ButtonHeight, "Join Game", BigFontFace)
+	menu.BtnBack = NewButton(RoomsMenuBackBtnX, RoomsMenuBackBtnY, ButtonWidth, ButtonHeight, "Back", BigFontFace)
 
 	// Create textfield
 	menu.RoomField = NewTextField(RoomsMenuTextFieldX, RoomsMenuTextFieldY, RoomsMenuTextFieldW, RoomsMenuTextFieldH, RoomsMenuTextFieldFont)
