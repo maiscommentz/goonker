@@ -9,6 +9,7 @@ import (
 
 	"Goonker/common"
 	"Goonker/server/logic"
+	"Goonker/server/utils"
 
 	"nhooyr.io/websocket"
 	"nhooyr.io/websocket/wsjson"
@@ -175,13 +176,15 @@ func (r *Room) startChallenge(conn *websocket.Conn) {
 	log.Println("Start challenge")
 	r.mutex.Lock()
 	defer r.mutex.Unlock()
-	// TODO : get random challenge, hardcoded for now
-	r.challengeAnswerKey = 0 // TODO : depends on the choosen challenge
-	var answers []string
-	answers = append(answers, "Russia")
-	answers = append(answers, "China")
-	answers = append(answers, "USA")
-	payload := common.ChallengePayload{Question: "What's the biggest country in the world ?", Answers: answers}
+
+	challenge, err := utils.PickChallenge()
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+
+	payload := common.ChallengePayload{Question: challenge.Question, Answers: challenge.Answers}
+	r.challengeAnswerKey = challenge.AnswerKey
 	r.sendJson(conn, common.MsgChallenge, payload)
 }
 

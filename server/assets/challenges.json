@@ -1,0 +1,12 @@
+[
+    {
+        "question": "What's the biggest country in the world ?",
+        "answers": ["Russia", "China", "USA"],
+        "answer_key": 0
+    },
+    {
+        "question": "How many cantons are there in Switzerland ?",
+        "answers": ["32", "27", "26"],
+        "answer_key": 2
+    }
+]
