@@ -55,24 +55,3 @@ func NewRoom(id string) *Room {
 
 	return room
 }
-
-// Draw the room at the specified index
-func (r *Room) Draw(screen *ebiten.Image, index int) {
-	// Constants for layout
-	listX := float64(RoomsMenuBtnX + ButtonWidth + RoomsMenuBtnX)
-	listY := float64(RoomsMenuBackBtnY)
-	yPos := listY + float64(index)*RoomsRowGap
-
-	// Draw the Row Image (Name + Line)
-	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(listX, yPos)
-	screen.DrawImage(r.Image, op)
-
-	// Update Button Position
-	btnX := listX + listX + ButtonWidth/2
-	r.JoinBtn.X = btnX
-	r.JoinBtn.Y = yPos
-
-	// Draw Button
-	r.JoinBtn.Draw(screen)
-}

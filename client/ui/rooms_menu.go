@@ -5,20 +5,31 @@ import (
 )
 
 const (
-	RoomsMenuBackBtnY       = 390.0
-	RoomsMenuPlayBotBtnX    = 600.0
-	RoomsMenuPlayBotBtnY    = 50.0
-	RoomsMenuJoinGameBtnX   = 350.0
-	RoomsMenuJoinGameBtnY   = 50.0
+	ButtonMiddleX = (float64(WindowWidth) - ButtonWidth) / 2
+	ButtonSpacing = 100
+
+	// Create room button position
+	RoomsMenuCreateRoomBtnX = ButtonMiddleX - ButtonWidth - ButtonSpacing
 	RoomsMenuCreateRoomBtnY = 50.0
-	RoomsMenuBtnX           = 50.0
+
+	// Join game button position
+	RoomsMenuJoinGameBtnX = ButtonMiddleX
+	RoomsMenuJoinGameBtnY = 50.0
+
+	// Against bot button position
+	RoomsMenuPlayBotBtnX = ButtonMiddleX + ButtonWidth + ButtonSpacing
+	RoomsMenuPlayBotBtnY = 50.0
+
+	// Back button position
+	RoomsMenuBackBtnX = ButtonMiddleX - ButtonWidth - ButtonSpacing
+	RoomsMenuBackBtnY = 390.0
 
 	// Text field
-	RoomsMenuTextFieldX    = (float64(WindowWidth)-RoomsMenuTextFieldW)/2 + 300
+	RoomsMenuTextFieldX    = (float64(WindowWidth) - RoomsMenuTextFieldW) / 2
 	RoomsMenuTextFieldY    = (float64(WindowHeight)-RoomsMenuTextFieldH)/2 - 100
 	RoomsMenuTextFieldW    = 300
 	RoomsMenuTextFieldH    = 50
-	RoomsMenuTextFieldFont = 16
+	RoomsMenuTextFieldFont = 14
 )
 
 type RoomsMenu struct {
@@ -36,10 +47,10 @@ func NewRoomsMenu() *RoomsMenu {
 	menu := &RoomsMenu{}
 
 	// Create buttons
-	menu.BtnBack = NewButton(RoomsMenuBtnX, RoomsMenuBackBtnY, ButtonWidth, ButtonHeight, "Back", SubtitleFontSize)
+	menu.BtnCreateRoom = NewButton(RoomsMenuCreateRoomBtnX, RoomsMenuCreateRoomBtnY, ButtonWidth, ButtonHeight, "Create Room", SubtitleFontSize)
 	menu.BtnPlayBot = NewButton(RoomsMenuPlayBotBtnX, RoomsMenuPlayBotBtnY, ButtonWidth, ButtonHeight, "Against Bot", SubtitleFontSize)
-	menu.BtnCreateRoom = NewButton(RoomsMenuBtnX, RoomsMenuCreateRoomBtnY, ButtonWidth, ButtonHeight, "Create Room", SubtitleFontSize)
 	menu.BtnJoinGame = NewButton(RoomsMenuJoinGameBtnX, RoomsMenuJoinGameBtnY, ButtonWidth, ButtonHeight, "Join Game", SubtitleFontSize)
+	menu.BtnBack = NewButton(RoomsMenuBackBtnX, RoomsMenuBackBtnY, ButtonWidth, ButtonHeight, "Back", SubtitleFontSize)
 
 	// Create textfield
 	menu.RoomField = NewTextField(RoomsMenuTextFieldX, RoomsMenuTextFieldY, RoomsMenuTextFieldW, RoomsMenuTextFieldH, RoomsMenuTextFieldFont)

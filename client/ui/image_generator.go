@@ -36,7 +36,8 @@ const (
 )
 
 var (
-	FontFace         font.Face
+	BigFontFace      font.Face
+	SmallFontFace    font.Face
 	GridImage        *ebiten.Image
 	CircleImage      *ebiten.Image
 	CrossImage       *ebiten.Image
@@ -82,8 +83,11 @@ func initFont() {
 	}
 
 	// Create the font face
-	FontFace = truetype.NewFace(font, &truetype.Options{
+	BigFontFace = truetype.NewFace(font, &truetype.Options{
 		Size: 24,
+	})
+	SmallFontFace = truetype.NewFace(font, &truetype.Options{
+		Size: 16,
 	})
 }
 
@@ -194,7 +198,7 @@ func DrawMainMenu(width, height int, title string) {
 	dc.SetHexColor(gridBackgroundColor)
 	dc.Clear()
 
-	dc.SetFontFace(FontFace)
+	dc.SetFontFace(BigFontFace)
 
 	// Game title
 	dc.SetHexColor(gridBorderColor)
@@ -210,7 +214,7 @@ func DrawWaitingMenu(width, height int) {
 	dc.SetHexColor(gridBackgroundColor)
 	dc.Clear()
 
-	dc.SetFontFace(FontFace)
+	dc.SetFontFace(BigFontFace)
 
 	dc.SetHexColor(gridBorderColor)
 	dc.DrawStringAnchored("Waiting for another player...", float64(width/2), float64(height)/TitleYRatio, 0.5, 0.5)
@@ -225,7 +229,7 @@ func DrawGameMenu(width, height int) {
 	dc.SetHexColor(gridBackgroundColor)
 	dc.Clear()
 
-	dc.SetFontFace(FontFace)
+	dc.SetFontFace(SmallFontFace)
 
 	dc.SetHexColor(gridBorderColor)
 	dc.DrawStringAnchored("Playing Goonker", (float64(width/2)-(gridSize/2))/2, float64(height)/TitleYRatio, 0.5, 0.5)
@@ -240,7 +244,7 @@ func DrawWinMenu(width, height int) {
 	dc.SetHexColor(gridBackgroundColor)
 	dc.Clear()
 
-	dc.SetFontFace(FontFace)
+	dc.SetFontFace(BigFontFace)
 
 	dc.SetHexColor(gridBorderColor)
 	dc.DrawStringAnchored("You won !", float64(width/2), float64(height)/TitleYRatio, 0.5, 0.5)
@@ -255,7 +259,7 @@ func DrawLoseMenu(width, height int) {
 	dc.SetHexColor(gridBackgroundColor)
 	dc.Clear()
 
-	dc.SetFontFace(FontFace)
+	dc.SetFontFace(BigFontFace)
 
 	dc.SetHexColor(gridBorderColor)
 	dc.DrawStringAnchored("You lost :(", float64(width/2), float64(height)/TitleYRatio, 0.5, 0.5)
@@ -270,7 +274,7 @@ func DrawDrawMenu(width, height int) {
 	dc.SetHexColor(gridBackgroundColor)
 	dc.Clear()
 
-	dc.SetFontFace(FontFace)
+	dc.SetFontFace(BigFontFace)
 
 	dc.SetHexColor(gridBorderColor)
 	dc.DrawStringAnchored("It's a draw...", float64(width/2), float64(height)/TitleYRatio, 0.5, 0.5)
@@ -285,10 +289,10 @@ func DrawRoomsMenu(width, height int) {
 	dc.SetHexColor(gridBackgroundColor)
 	dc.Clear()
 
-	dc.SetFontFace(FontFace)
+	dc.SetFontFace(BigFontFace)
 
 	dc.SetHexColor(gridBorderColor)
-	dc.DrawStringAnchored("Choose a room", float64(width/2), RoomsMenuTextFieldY, 0.5, 0.5)
+	dc.DrawStringAnchored("Enter room ID", float64(width/2)-RoomsMenuTextFieldW, RoomsMenuTextFieldY, 0.5, 1.5)
 
 	RoomsMenuImage = ebiten.NewImageFromImage(dc.Image())
 }

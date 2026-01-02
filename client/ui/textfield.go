@@ -58,7 +58,7 @@ func (tf *TextField) redraw() {
 	dc.Stroke()
 
 	// Text
-	dc.SetFontFace(FontFace)
+	dc.SetFontFace(BigFontFace)
 	dc.SetColor(color.Black)
 	dc.DrawString(tf.Text, 10, tf.Height/2+tf.fontSize/3)
 

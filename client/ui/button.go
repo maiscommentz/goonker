@@ -33,7 +33,7 @@ func NewButton(x, y, w, h float64, text string, fontSize float64) *Button {
 	dc.SetHexColor(gridBorderColor)
 	dc.Fill()
 
-	dc.SetFontFace(FontFace)
+	dc.SetFontFace(BigFontFace)
 	dc.SetHexColor(gridBackgroundColor)
 	dc.DrawStringAnchored(text, w/2, h/2, 0.5, ButtonTextYAnchor)
 
