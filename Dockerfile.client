@@ -2,6 +2,13 @@
 FROM golang:1.24-alpine AS builder
 WORKDIR /app
 
+# Install system dependencies required by Ebiten
+RUN apk add --no-cache \
+    gcc musl-dev pkgconf \
+    alsa-lib-dev \
+    libx11-dev libxrandr-dev libxcursor-dev libxi-dev libxinerama-dev libxxf86vm-dev \
+    mesa-dev
+
 # Use module download cache to speed up builds
 COPY go.mod go.sum ./
 COPY . .
