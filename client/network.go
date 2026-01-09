@@ -64,7 +64,10 @@ func (c *NetworkClient) Connect(url string) error {
 func (c *NetworkClient) Disconnect() {
 	c.sendMu.Lock()
 	if c.conn != nil {
-		c.conn.Close(websocket.StatusNormalClosure, "disconnecting")
+		err := c.conn.Close(websocket.StatusNormalClosure, "disconnecting")
+		if err != nil {
+			log.Println(err)
+		}
 		c.conn = nil
 	}
 	c.sendMu.Unlock()
@@ -95,7 +98,7 @@ func (c *NetworkClient) JoinGame(roomID string, isBot bool) error {
 	// Marshal the payload
 	data, err := json.Marshal(joinPayload)
 	if err != nil {
-		c.conn.Close(websocket.StatusInternalError, "failed to marshal join payload")
+		err = c.conn.Close(websocket.StatusInternalError, "failed to marshal join payload")
 		return err
 	}
 	packet := common.Packet{
@@ -103,7 +106,7 @@ func (c *NetworkClient) JoinGame(roomID string, isBot bool) error {
 		Data: data,
 	}
 
-	c.SendPacket(packet)
+	err = c.SendPacket(packet)
 
 	return err
 }
@@ -118,7 +121,7 @@ func (c *NetworkClient) PlaceSymbol(cellX, cellY int) error {
 	// Marshal the payload
 	data, err := json.Marshal(payload)
 	if err != nil {
-		c.conn.Close(websocket.StatusInternalError, "failed to marshal click payload")
+		err = c.conn.Close(websocket.StatusInternalError, "failed to marshal click payload")
 		return err
 	}
 	packet := common.Packet{
@@ -126,7 +129,7 @@ func (c *NetworkClient) PlaceSymbol(cellX, cellY int) error {
 		Data: data,
 	}
 
-	c.SendPacket(packet)
+	err = c.SendPacket(packet)
 
 	return err
 }
@@ -139,7 +142,7 @@ func (c *NetworkClient) AnswerChallenge(answerKey int) error {
 	// Marshal the payload
 	data, err := json.Marshal(payload)
 	if err != nil {
-		c.conn.Close(websocket.StatusInternalError, "failed to marshal answer payload")
+		err = c.conn.Close(websocket.StatusInternalError, "failed to marshal answer payload")
 		return err
 	}
 	packet := common.Packet{
@@ -147,7 +150,7 @@ func (c *NetworkClient) AnswerChallenge(answerKey int) error {
 		Data: data,
 	}
 
-	c.SendPacket(packet)
+	err = c.SendPacket(packet)
 
 	return err
 }
@@ -157,7 +160,10 @@ func (c *NetworkClient) listen() {
 		// Lock, Close, and set c.conn to nil so we can reconnect later
 		c.sendMu.Lock()
 		if c.conn != nil {
-			c.conn.Close(websocket.StatusInternalError, "connection closed")
+			err := c.conn.Close(websocket.StatusInternalError, "connection closed")
+			if err != nil {
+				log.Println(err)
+			}
 			c.conn = nil // Important: Reset so Connect() works again
 		}
 		c.sendMu.Unlock()

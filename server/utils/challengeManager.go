@@ -29,7 +29,7 @@ func LoadChallenges() {
 
 func PickChallenge() (*Challenge, error) {
 	if challenges == nil {
-		return nil, fmt.Errorf("No challenges loaded")
+		return nil, fmt.Errorf("no challenges loaded")
 	}
 
 	randIndex := rand.Intn(len(challenges))

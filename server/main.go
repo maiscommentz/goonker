@@ -75,13 +75,20 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 			var joinData common.JoinPayload
 			if err := json.Unmarshal(packet.Data, &joinData); err != nil {
 				log.Printf("Invalid join payload: %v", err)
-				c.Close(websocket.StatusProtocolError, ErrInvalidPayload)
+				err = c.Close(websocket.StatusProtocolError, ErrInvalidPayload)
+				if err != nil {
+					log.Println(err)
+				}
+
 				return
 			}
 
 			// Validate RoomID presence
 			if joinData.RoomID == "" {
-				c.Close(websocket.StatusPolicyViolation, ErrRoomIDRequired)
+				err = c.Close(websocket.StatusPolicyViolation, ErrRoomIDRequired)
+				if err != nil {
+					log.Println(err)
+				}
 				return
 			}
 
@@ -93,7 +100,10 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 			// Validation of assigned PlayerID, otherwise room is full
 			if pid == common.Empty {
 				log.Println("Room is full, rejecting client")
-				c.Close(websocket.StatusPolicyViolation, ErrRoomFull)
+				err = c.Close(websocket.StatusPolicyViolation, ErrRoomFull)
+				if err != nil {
+					log.Println(err)
+				}
 			} else {
 				log.Printf("Player assigned ID: %d in room %s", pid, joinData.RoomID)
 			}

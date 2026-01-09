@@ -112,7 +112,10 @@ func (r *Room) listenPlayer(pid common.PlayerID, conn *websocket.Conn) {
 		delete(r.Players, pid)
 		r.mutex.Unlock()
 
-		conn.Close(websocket.StatusNormalClosure, CloseMessage)
+		err := conn.Close(websocket.StatusNormalClosure, CloseMessage)
+		if err != nil {
+			log.Println(err)
+		}
 
 		// Auto-remove room if empty
 		if len(r.Players) == 0 {
