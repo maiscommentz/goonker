@@ -357,19 +357,19 @@ func (g *Game) initAudio() {
 	if err != nil {
 		log.Printf("Error loading sound: %v", err)
 	}
-	err = g.audioManager.LoadMusic("place_symbol", "place_symbol.wav")
+	err = g.audioManager.LoadSound("place_symbol", "place_symbol.wav")
 	if err != nil {
 		log.Printf("Error loading music: %v", err)
 	}
-	err = g.audioManager.LoadMusic("win", "win.wav")
+	err = g.audioManager.LoadSound("win", "win.wav")
 	if err != nil {
 		log.Printf("Error loading music: %v", err)
 	}
-	err = g.audioManager.LoadMusic("lose", "lose.wav")
+	err = g.audioManager.LoadSound("lose", "lose.wav")
 	if err != nil {
 		log.Printf("Error loading music: %v", err)
 	}
-	err = g.audioManager.LoadMusic("challenge", "challenge.wav")
+	err = g.audioManager.LoadSound("challenge", "challenge.wav")
 	if err != nil {
 		log.Printf("Error loading music: %v", err)
 	}
