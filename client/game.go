@@ -28,7 +28,7 @@ const (
 	sGameDraw
 
 	// Network configuration
-	serverAddress = "wss://goonker.saikoon.ch/ws" // goonker.saikoon.ch
+	serverAddress = "wss://goonker.saikoon.ch/ws"
 	isBotGame     = true
 )
 

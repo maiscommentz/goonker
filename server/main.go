@@ -9,7 +9,6 @@ import (
 
 	"Goonker/common"
 	"Goonker/server/hub"
-	"Goonker/server/utils"
 
 	"nhooyr.io/websocket"
 	"nhooyr.io/websocket/wsjson"
@@ -34,9 +33,6 @@ const (
 func main() {
 	// Register the WebSocket handler
 	http.HandleFunc(WsRoute, wsHandler)
-
-	// Load the challenges
-	utils.LoadChallenges()
 
 	// Start the server
 	log.Printf("Starting server on port %s...", ServerPort)

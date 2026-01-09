@@ -48,5 +48,134 @@
         "question": "Which programming language is primarily used for styling web pages?",
         "answers": ["HTML", "CSS", "Python"],
         "answer_key": 1
+    },
+    {
+        "question": "How many continents are there on Earth?",
+        "answers": ["5", "6", "7"],
+        "answer_key": 2
+    },
+    {
+        "question": "Which ocean is the largest?",
+        "answers": ["Atlantic", "Indian", "Pacific"],
+        "answer_key": 2
+    },
+    {
+        "question": "What is H2O commonly known as?",
+        "answers": ["Oxygen", "Water", "Hydrogen"],
+        "answer_key": 1
+    },
+    {
+        "question": "Which country is famous for the pyramids?",
+        "answers": ["Mexico", "Egypt", "Peru"],
+        "answer_key": 1
+    },
+    {
+        "question": "How many days are there in a leap year?",
+        "answers": ["365", "366", "364"],
+        "answer_key": 1
+    },
+    {
+        "question": "Which instrument has 88 keys?",
+        "answers": ["Guitar", "Violin", "Piano"],
+        "answer_key": 2
+    },
+    {
+        "question": "What color do you get by mixing red and blue?",
+        "answers": ["Green", "Purple", "Orange"],
+        "answer_key": 1
+    },
+    {
+        "question": "Which gas do humans breathe in to survive?",
+        "answers": ["Carbon Dioxide", "Nitrogen", "Oxygen"],
+        "answer_key": 2
+    },
+    {
+        "question": "What is the currency of the United Kingdom?",
+        "answers": ["Euro", "Dollar", "Pound Sterling"],
+        "answer_key": 2
+    },
+    {
+        "question": "What is the derivative of 2x - cos(x) ?",
+        "answers": ["2 + sin(x)", "2 - sin(x)", "x^2 - sin(x)", "x^2 + cos(x)"],
+        "answer_key": 1
+    },
+    {
+        "question": "What is 9 × 7?",
+        "answers": ["56", "63", "72"],
+        "answer_key": 1
+    },
+    {
+        "question": "What is the square root of 64?",
+        "answers": ["6", "8", "10"],
+        "answer_key": 1
+    },
+    {
+        "question": "What is 15 percent of 100?",
+        "answers": ["10", "15", "20"],
+        "answer_key": 1
+    },
+    {
+        "question": "Which country has the largest population?",
+        "answers": ["India", "China", "USA"],
+        "answer_key": 0
+    },
+    {
+        "question": "What is the capital of Canada?",
+        "answers": ["Toronto", "Vancouver", "Ottawa"],
+        "answer_key": 2
+    },
+    {
+        "question": "Which continent is the Sahara Desert located in?",
+        "answers": ["Asia", "Africa", "Australia"],
+        "answer_key": 1
+    },
+    {
+        "question": "Which language is mainly used for Android app development?",
+        "answers": ["Swift", "Kotlin", "JavaScript"],
+        "answer_key": 1
+    },
+    {
+        "question": "What does 'JSON' stand for?",
+        "answers": [
+            "JavaScript Object Notation",
+            "Java Standard Output Network",
+            "JavaScript Ordered Nodes"
+        ],
+        "answer_key": 0
+    },
+    {
+        "question": "Which symbol is used for comments in Python?",
+        "answers": ["//", "#", "/* */"],
+        "answer_key": 1
+    },
+    {
+        "question": "Who was the first President of the United States?",
+        "answers": ["Abraham Lincoln", "George Washington"],
+        "answer_key": 1
+    },
+    {
+        "question": "In which year did World War II end?",
+        "answers": ["1943", "1945", "1950"],
+        "answer_key": 1
+    },
+    {
+        "question": "Which ancient civilization built Machu Picchu?",
+        "answers": ["Aztec", "Maya", "Inca"],
+        "answer_key": 2
+    },
+    {
+        "question": "What is 2 to the power of 5?",
+        "answers": ["16", "32", "64"],
+        "answer_key": 1
+    },
+    {
+        "question": "Which ocean lies between Africa and Australia?",
+        "answers": ["Atlantic Ocean", "Indian Ocean"],
+        "answer_key": 1
+    },
+    {
+        "question": "Which programming language uses indentation instead of braces?",
+        "answers": ["Python", "C++", "Java"],
+        "answer_key": 0
     }
 ]

@@ -39,6 +39,7 @@ type Room struct {
 	IsBotGame bool
 
 	// Challenge
+	challengeManager   utils.ChallengeManager
 	challengedMove     common.ClickPayload
 	challengeAnswerKey int
 	challengedPlayer   common.PlayerID
@@ -48,10 +49,11 @@ type Room struct {
 // NewRoom creates a new Room instance.
 func NewRoom(id string, isBot bool) *Room {
 	return &Room{
-		ID:        id,
-		Players:   make(map[common.PlayerID]*Player),
-		Logic:     logic.NewGameLogic(),
-		IsBotGame: isBot,
+		ID:               id,
+		Players:          make(map[common.PlayerID]*Player),
+		Logic:            logic.NewGameLogic(),
+		IsBotGame:        isBot,
+		challengeManager: *utils.New(),
 	}
 }
 
@@ -186,11 +188,13 @@ func (r *Room) startChallenge(conn *websocket.Conn) {
 	r.mutex.Lock()
 	defer r.mutex.Unlock()
 
-	challenge, err := utils.PickChallenge()
+	challenge, err := r.challengeManager.PickChallenge()
 	if err != nil {
 		log.Fatal(err)
 		return
 	}
+
+	challenge.Shuffle()
 
 	payload := common.ChallengePayload{Question: challenge.Question, Answers: challenge.Answers}
 	r.challengeAnswerKey = challenge.AnswerKey

@@ -89,6 +89,7 @@ func (g *GameLogic) ApplyMove(player common.PlayerID, x, y int) error {
 	return nil
 }
 
+// DeleteMove empties the given board cell
 func (g *GameLogic) DeleteMove(x, y int) {
 	g.Board[x][y] = common.Empty
 	g.SymbolCount--
