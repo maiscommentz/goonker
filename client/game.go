@@ -117,7 +117,7 @@ func (g *Game) Update() error {
 		if g.roomsMenu.BtnPlayBot.IsClicked() {
 			g.audioManager.Play("click_button")
 			// Create a bot game with a specialized ID
-			err := g.netClient.JoinGame(fmt.Sprintf("BOT_%d_%d", time.Now().Unix(), rand.Intn(10000)), true)
+			err := g.netClient.JoinGame(fmt.Sprintf("BOT_%d", time.Now().Unix()/1000), true)
 			if err != nil {
 				log.Println("Connection failed:", err)
 			}
@@ -127,7 +127,7 @@ func (g *Game) Update() error {
 		// Create a room with a random ID.
 		if g.roomsMenu.BtnCreateRoom.IsClicked() {
 			g.audioManager.Play("click_button")
-			newRoomId := fmt.Sprintf("%d_%d", time.Now().Unix(), rand.Intn(10000))
+			newRoomId := fmt.Sprintf("%d", time.Now().Unix()/1000)
 			err := g.netClient.JoinGame(newRoomId, false)
 			if err != nil {
 				log.Println("Connection failed:", err)
