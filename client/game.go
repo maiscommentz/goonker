@@ -198,7 +198,7 @@ func (g *Game) Update() error {
 		if !ok {
 			return nil
 		}
-
+		g.audioManager.Play("place_symbol")
 		err := g.netClient.PlaceSymbol(cellX, cellY)
 		if err != nil {
 			log.Println(err)
@@ -208,6 +208,7 @@ func (g *Game) Update() error {
 		for i, ansBtn := range g.challengeMenu.Answers {
 			if ansBtn.IsClicked() {
 				g.audioManager.Play("click_button")
+				g.audioManager.Play("challenge")
 				err := g.netClient.AnswerChallenge(i)
 				if err != nil {
 					log.Println("Connection failed:", err)
@@ -315,6 +316,7 @@ func (g *Game) handleNetwork() {
 			g.challengeMenu.Clock = *ui.NewTimer(common.ChallengeTime * time.Second)
 			g.challengeMenu.Clock.OnEnd = func() {
 				g.state = sGamePlaying
+				g.audioManager.Play("challenge")
 				err := g.netClient.AnswerChallenge(-1)
 				if err != nil {
 					log.Println("Connection failed:", err)
@@ -330,12 +332,15 @@ func (g *Game) handleNetwork() {
 			switch p.Winner {
 			case g.mySymbol:
 				g.state = sGameWin
+				g.audioManager.Play("win")
 				log.Println("You Win!")
 			case common.Empty:
 				g.state = sGameDraw
+				g.audioManager.Play("lose")
 				log.Println("It's a Draw!")
 			default:
 				g.state = sGameLose
+				g.audioManager.Play("lose")
 				log.Println("You Lose!")
 			}
 		}
@@ -358,5 +363,21 @@ func (g *Game) initAudio() {
 	err := g.audioManager.LoadSound("click_button", "click_button.wav")
 	if err != nil {
 		log.Printf("Error loading sound: %v", err)
+	}
+	err = g.audioManager.LoadMusic("place_symbol", "place_symbol.wav")
+	if err != nil {
+		log.Printf("Error loading music: %v", err)
+	}
+	err = g.audioManager.LoadMusic("win", "win.wav")
+	if err != nil {
+		log.Printf("Error loading music: %v", err)
+	}
+	err = g.audioManager.LoadMusic("lose", "lose.wav")
+	if err != nil {
+		log.Printf("Error loading music: %v", err)
+	}
+	err = g.audioManager.LoadMusic("challenge", "challenge.wav")
+	if err != nil {
+		log.Printf("Error loading music: %v", err)
 	}
 }
