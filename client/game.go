@@ -207,7 +207,6 @@ func (g *Game) Update() error {
 		g.challengeMenu.Clock.Update()
 		for i, ansBtn := range g.challengeMenu.Answers {
 			if ansBtn.IsClicked() {
-				g.audioManager.Play("click_button")
 				g.audioManager.Play("challenge")
 				err := g.netClient.AnswerChallenge(i)
 				if err != nil {
@@ -315,8 +314,8 @@ func (g *Game) handleNetwork() {
 
 			g.challengeMenu.Clock = *ui.NewTimer(common.ChallengeTime * time.Second)
 			g.challengeMenu.Clock.OnEnd = func() {
-				g.state = sGamePlaying
 				g.audioManager.Play("challenge")
+				g.state = sGamePlaying
 				err := g.netClient.AnswerChallenge(-1)
 				if err != nil {
 					log.Println("Connection failed:", err)
@@ -332,14 +331,23 @@ func (g *Game) handleNetwork() {
 			switch p.Winner {
 			case g.mySymbol:
 				g.state = sGameWin
+				if g.audioManager.IsPlaying("challenge") {
+					g.audioManager.Stop("challenge")
+				}
 				g.audioManager.Play("win")
 				log.Println("You Win!")
 			case common.Empty:
 				g.state = sGameDraw
+				if g.audioManager.IsPlaying("challenge") {
+					g.audioManager.Stop("challenge")
+				}
 				g.audioManager.Play("lose")
 				log.Println("It's a Draw!")
 			default:
 				g.state = sGameLose
+				if g.audioManager.IsPlaying("challenge") {
+					g.audioManager.Stop("challenge")
+				}
 				g.audioManager.Play("lose")
 				log.Println("You Lose!")
 			}

@@ -14,8 +14,8 @@ import (
 // Constants for audio playback
 const (
 	SampleRate  = 44100
-	MusicVolume = 0.1
-	SoundVolume = 0.5
+	MusicVolume = 0.3
+	SoundVolume = 0.3
 )
 
 // AudioManager manages audio playback
