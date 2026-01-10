@@ -10,7 +10,6 @@ import (
 
 	"Goonker/common"
 	"Goonker/server/logic"
-	"Goonker/server/utils"
 
 	"nhooyr.io/websocket"
 	"nhooyr.io/websocket/wsjson"
@@ -40,7 +39,7 @@ type Room struct {
 	IsBotGame bool
 
 	// Challenge
-	challengeManager   utils.ChallengeManager
+	challengeManager   logic.ChallengeManager
 	challengedMove     common.ClickPayload
 	challengeAnswerKey int
 	challengedPlayer   common.PlayerID
@@ -54,7 +53,7 @@ func NewRoom(id string, isBot bool) *Room {
 		Players:          make(map[common.PlayerID]*Player),
 		Logic:            logic.NewGameLogic(),
 		IsBotGame:        isBot,
-		challengeManager: *utils.New(),
+		challengeManager: *logic.NewChallengeManager(),
 	}
 }
 

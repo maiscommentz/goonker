@@ -1,4 +1,4 @@
-package utils
+package logic
 
 import (
 	"Goonker/server/assets"
@@ -22,7 +22,7 @@ type Challenge struct {
 }
 
 // LoadChallenges from a json file
-func New() *ChallengeManager {
+func NewChallengeManager() *ChallengeManager {
 	challengesByte, err := assets.AssetsFS.ReadFile("challenges.json")
 	if err != nil {
 		log.Fatal(err)
