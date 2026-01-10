@@ -37,6 +37,7 @@ type Game struct {
 	roomsMenu     *ui.RoomsMenu
 	waitingMenu   *ui.WaitingMenu
 	challengeMenu *ui.ChallengeMenu
+	gameOverMenu  *ui.GameOverMenu
 	state         int
 	netClient     *NetworkClient
 	grid          *ui.Grid
@@ -215,6 +216,15 @@ func (g *Game) Update() error {
 				g.state = sGamePlaying
 			}
 		}
+	case sGameWin, sGameLose, sGameDraw:
+		if g.gameOverMenu.BtnBack.IsClicked() {
+			g.audioManager.Play("click_button")
+			g.state = sRoomsMenu
+			err := g.netClient.GetRooms()
+			if err != nil {
+				log.Println("Could not get rooms : ", err)
+			}
+		}
 	}
 	return nil
 }
@@ -234,11 +244,11 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	case sChallenge:
 		ui.RenderChallenge(screen, g.challengeMenu)
 	case sGameWin:
-		ui.RenderWin(screen)
+		ui.RenderWin(screen, g.gameOverMenu)
 	case sGameLose:
-		ui.RenderLose(screen)
+		ui.RenderLose(screen, g.gameOverMenu)
 	case sGameDraw:
-		ui.RenderDraw(screen)
+		ui.RenderDraw(screen, g.gameOverMenu)
 	}
 }
 
@@ -359,6 +369,7 @@ func (g *Game) handleNetwork() {
 func (g *Game) initUIElements() {
 	g.menu = ui.NewMainMenu()
 	g.roomsMenu = ui.NewRoomsMenu()
+	g.gameOverMenu = ui.NewGameOverMenu()
 	g.waitingMenu = &ui.WaitingMenu{}
 	g.grid = &ui.Grid{
 		Col: ui.GridCol,

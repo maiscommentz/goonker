@@ -164,16 +164,19 @@ func RenderChallenge(screen *ebiten.Image, challenge *ChallengeMenu) {
 }
 
 // Render win screen.
-func RenderWin(screen *ebiten.Image) {
+func RenderWin(screen *ebiten.Image, menu *GameOverMenu) {
 	screen.DrawImage(WinMenuImage, nil)
+	menu.Draw(screen)
 }
 
 // Render lose screen.
-func RenderLose(screen *ebiten.Image) {
+func RenderLose(screen *ebiten.Image, menu *GameOverMenu) {
 	screen.DrawImage(LoseMenuImage, nil)
+	menu.Draw(screen)
 }
 
 // Render draw screen.
-func RenderDraw(screen *ebiten.Image) {
+func RenderDraw(screen *ebiten.Image, menu *GameOverMenu) {
 	screen.DrawImage(DrawMenuImage, nil)
+	menu.Draw(screen)
 }
