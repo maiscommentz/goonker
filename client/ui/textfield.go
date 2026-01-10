@@ -8,6 +8,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
+// TextField represents a text input field.
 type TextField struct {
 	X, Y          float64
 	Width, Height float64
@@ -21,6 +22,7 @@ type TextField struct {
 	fontSize      float64
 }
 
+// NewTextField creates a new TextField instance.
 func NewTextField(x, y, w, h float64, fontSize float64) *TextField {
 	tf := &TextField{
 		X:         x,
@@ -35,6 +37,7 @@ func NewTextField(x, y, w, h float64, fontSize float64) *TextField {
 	return tf
 }
 
+// redraw redraws the text field image.
 func (tf *TextField) redraw() {
 	dc := gg.NewContext(int(tf.Width), int(tf.Height))
 
@@ -78,6 +81,7 @@ func (tf *TextField) redraw() {
 	tf.Image = ebiten.NewImageFromImage(dc.Image())
 }
 
+// Update handles user input for the text field.
 func (tf *TextField) Update() {
 	// Handle click
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
@@ -136,6 +140,7 @@ func (tf *TextField) Update() {
 	}
 }
 
+// Draw draws the text field to the screen.
 func (tf *TextField) Draw(screen *ebiten.Image) {
 	opts := &ebiten.DrawImageOptions{}
 	opts.GeoM.Translate(tf.X, tf.Y)

@@ -32,6 +32,7 @@ const (
 	RoomsMenuTextFieldFont = 14
 )
 
+// RoomsMenu represents the rooms menu UI.
 type RoomsMenu struct {
 	Rooms         []*Room
 	RoomIndex     int
@@ -42,7 +43,7 @@ type RoomsMenu struct {
 	RoomField     *TextField
 }
 
-// Constructor for the play menu.
+// NewRoomsMenu creates a new RoomsMenu instance.
 func NewRoomsMenu() *RoomsMenu {
 	menu := &RoomsMenu{}
 

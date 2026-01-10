@@ -14,13 +14,14 @@ const (
 	RoomsRowGap     = 70.0
 )
 
+// Room represents a single room item in the rooms list.
 type Room struct {
 	JoinBtn *Button
 	Id      string
 	Image   *ebiten.Image
 }
 
-// Constructor for the room.
+// NewRoom creates a new Room UI component.
 func NewRoom(id string) *Room {
 	// Room row dimensions
 	width := WindowWidth / 2

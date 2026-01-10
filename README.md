@@ -1,7 +1,7 @@
 # Goonker - Tic Tac Toe Reinvented
-A modern implementation of the classic Tic Tac Toe game with multiplayer support, hard AI opponent and a unique nested game mechanic, built using Ebiten and Go, and compiled to WebAssembly for web deployment. This project was developed as part of the "Elegant programming in Go" course miniproject at HEIA-FR, Switzerland.
+A modern implementation of the classic Tic Tac Toe game with multiplayer support, hard AI opponent and a unique nested quiz mechanic, built using Ebiten and Go, and compiled to WebAssembly for web deployment. This project was developed as part of the "Elegant programming in Go" course miniproject at HEIA-FR, Switzerland.
 
-🎮 Access the game online: *Coming soon*
+🎮 Access the game online: [https://maiscommentz.github.io/goonker/](https://maiscommentz.github.io/goonker/)
 
 
 ## 🛠️ Technologies
@@ -15,7 +15,7 @@ A modern implementation of the classic Tic Tac Toe game with multiplayer support
 
 2. **Game Modes** - Play against an AI bot or another player in multiplayer mode.
 
-3. **Nested Games** - A player can conquer a cell by winning a randomly chosen mini-game.
+3. **Nested Quiz** - A player can conquer a cell by answering a question correctly.
 
 4. **Web Interface** - Interactive web application compiled to WebAssembly for optimal performance.
 

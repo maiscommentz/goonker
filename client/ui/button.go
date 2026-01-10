@@ -15,13 +15,14 @@ const (
 	ButtonTextYAnchor  = 0.35
 )
 
+// Button represents a clickable UI button.
 type Button struct {
 	X, Y, Width, Height float64
 	Image               *ebiten.Image
 	Text                string
 }
 
-// Constructor for the button.
+// NewButton creates a new Button instance.
 func NewButton(x, y, w, h float64, text string, fontFace font.Face) *Button {
 	b := &Button{
 		X: x, Y: y, Width: w, Height: h,

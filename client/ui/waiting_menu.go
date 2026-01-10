@@ -18,12 +18,13 @@ const (
 	WaitingMenuRoomTextY = (float64(WindowHeight) / 2.0) - 100
 )
 
+// WaitingMenu represents the waiting screen UI.
 type WaitingMenu struct {
 	RotationAngle float64
 	RoomId        string
 }
 
-// Draw the waiting menu to the screen.
+// Draw draws the waiting menu to the screen, including the spinning wheel and room ID.
 func (waitingMenu *WaitingMenu) Draw(screen *ebiten.Image) {
 	screen.DrawImage(WaitingMenuImage, nil)
 	screenCenterX := float64(WindowWidth) / 2.0

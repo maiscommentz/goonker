@@ -8,12 +8,13 @@ const (
 	MainMenuQuitBtnY = 280.0
 )
 
+// MainMenu represents the main menu UI.
 type MainMenu struct {
 	BtnPlay *Button
 	BtnQuit *Button
 }
 
-// Constructor for the main menu.
+// NewMainMenu creates a new MainMenu instance.
 func NewMainMenu() *MainMenu {
 	menu := &MainMenu{}
 

@@ -4,6 +4,7 @@ import (
 	"sync"
 )
 
+// Hub represents the hub that manages rooms
 type Hub struct {
 	rooms map[string]*Room
 	mutex sync.Mutex
@@ -14,20 +15,24 @@ var GlobalHub = &Hub{
 	rooms: make(map[string]*Room),
 }
 
+// GetRoom returns a room by its ID
 func (h *Hub) GetRoom(roomID string) *Room {
 	h.mutex.Lock()
 	defer h.mutex.Unlock()
 	return h.rooms[roomID]
 }
 
+// CreateRoom creates a new room if it doesn't exist
 func (h *Hub) CreateRoom(roomID string, isBot bool) *Room {
 	h.mutex.Lock()
 	defer h.mutex.Unlock()
 
+	// If the room already exists, return it
 	if room, exists := h.rooms[roomID]; exists {
 		return room
 	}
 
+	// Create the room
 	newRoom := NewRoom(roomID, isBot)
 	h.rooms[roomID] = newRoom
 	return newRoom

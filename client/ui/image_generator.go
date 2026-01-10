@@ -52,7 +52,7 @@ var (
 	NoRoomsImage     *ebiten.Image
 )
 
-// Initializes the images.
+// InitImages initializes all the game images.
 func InitImages() {
 	initFont()
 
@@ -91,7 +91,7 @@ func initFont() {
 	})
 }
 
-// Draw the image for the grid.
+// DrawGrid draws the grid image.
 func DrawGrid(col int) {
 	dc := gg.NewContext(gridSize, gridSize)
 
@@ -125,7 +125,7 @@ func DrawGrid(col int) {
 	GridImage = ebiten.NewImageFromImage(dc.Image())
 }
 
-// Draw the image for the circle.
+// DrawCircle draws the circle symbol image.
 func DrawCircle() {
 	dc := gg.NewContext(gridSize, gridSize)
 
@@ -141,7 +141,7 @@ func DrawCircle() {
 	CircleImage = ebiten.NewImageFromImage(dc.Image())
 }
 
-// Draw the image for the cross.
+// DrawCross draws the cross symbol image.
 func DrawCross() {
 	dc := gg.NewContext(gridSize, gridSize)
 
@@ -163,7 +163,7 @@ func DrawCross() {
 	CrossImage = ebiten.NewImageFromImage(dc.Image())
 }
 
-// Draw the image for the waiting wheel.
+// DrawWaitingWheel draws the waiting wheel animation frames.
 func DrawWaitingWheel() {
 	dc := gg.NewContext(WheelSize, WheelSize)
 

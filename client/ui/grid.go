@@ -7,6 +7,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
+// Grid represents the game board grid.
 type Grid struct {
 	Col       int
 	BoardData [GridCol][GridCol]common.PlayerID
@@ -20,20 +21,25 @@ func (g *Grid) OnClick() (int, int, bool) {
 
 	mx, my := ebiten.CursorPosition()
 
+	// Calculate grid width and height
 	gridW, gridH := GridImage.Bounds().Dx(), GridImage.Bounds().Dy()
 
+	// Calculate offsets to center the grid
 	offsetX := (WindowWidth - gridW) / 2
 	offsetY := (WindowHeight - gridH) / 2
 
+	// Calculate local coordinates inside the grid
 	localX := mx - offsetX
 	localY := my - offsetY
 
+	// Check if the click is inside the grid
 	if localX < 0 || localY < 0 || localX >= gridW || localY >= gridH {
 		return -1, -1, false
 	}
 
 	cellSize := gridW / GridCol
 
+	// Determine cell coordinates
 	cellX := localX / cellSize
 	cellY := localY / cellSize
 

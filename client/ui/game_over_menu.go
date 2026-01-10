@@ -7,11 +7,12 @@ const (
 	GameOverMenuBackBtnY = 350.0
 )
 
+// GameOverMenu represents the game over screen UI.
 type GameOverMenu struct {
 	BtnBack *Button
 }
 
-// Constructor for the game over menu.
+// NewGameOverMenu creates a new GameOverMenu instance.
 func NewGameOverMenu() *GameOverMenu {
 	menu := &GameOverMenu{}
 

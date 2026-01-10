@@ -32,9 +32,12 @@ const (
 )
 
 var (
+	// gameFaceSource is the source of the font face
 	gameFaceSource *text.GoTextFaceSource
-	SmallGameFont  *text.GoTextFace
-	BigGameFont    *text.GoTextFace
+	// SmallGameFont is the small font face
+	SmallGameFont *text.GoTextFace
+	// BigGameFont is the big font face
+	BigGameFont *text.GoTextFace
 )
 
 // Init rendering components, like the images, the fonts...

@@ -61,9 +61,11 @@ func (c *NetworkClient) Connect(url string) error {
 	return nil
 }
 
+// Disconnect closes the connection to the server
 func (c *NetworkClient) Disconnect() {
 	c.sendMu.Lock()
 	if c.conn != nil {
+		// Close the connection
 		err := c.conn.Close(websocket.StatusNormalClosure, "disconnecting")
 		if err != nil {
 			log.Println(err)
@@ -73,14 +75,17 @@ func (c *NetworkClient) Disconnect() {
 	c.sendMu.Unlock()
 }
 
+// GetRooms requests the list of available rooms from the server
 func (c *NetworkClient) GetRooms() error {
+	// Send the get rooms packet
 	err := c.SendPacket(common.Packet{
 		Type: common.MsgGetRooms,
 		Data: nil,
 	})
 
+	// If there was an error, return it
 	if err != nil {
-		log.Println("Failed to send move:", err)
+		log.Println("Failed to send get rooms:", err)
 		return err
 	}
 
@@ -106,11 +111,19 @@ func (c *NetworkClient) JoinGame(roomID string, isBot bool) error {
 		Data: data,
 	}
 
+	// Send the packet
 	err = c.SendPacket(packet)
 
-	return err
+	// If there was an error, return it
+	if err != nil {
+		log.Println("Failed to send join:", err)
+		return err
+	}
+
+	return nil
 }
 
+// PlaceSymbol places a symbol on the board
 func (c *NetworkClient) PlaceSymbol(cellX, cellY int) error {
 	// Build the click payload
 	payload := common.ClickPayload{
@@ -129,11 +142,19 @@ func (c *NetworkClient) PlaceSymbol(cellX, cellY int) error {
 		Data: data,
 	}
 
+	// Send the packet
 	err = c.SendPacket(packet)
 
-	return err
+	// If there was an error, return it
+	if err != nil {
+		log.Println("Failed to send click:", err)
+		return err
+	}
+
+	return nil
 }
 
+// AnswerChallenge answers a challenge
 func (c *NetworkClient) AnswerChallenge(answerKey int) error {
 	payload := common.AnswerPayload{
 		Answer: answerKey,
@@ -150,11 +171,19 @@ func (c *NetworkClient) AnswerChallenge(answerKey int) error {
 		Data: data,
 	}
 
+	// Send the packet
 	err = c.SendPacket(packet)
 
-	return err
+	// If there was an error, return it
+	if err != nil {
+		log.Println("Failed to send answer:", err)
+		return err
+	}
+
+	return nil
 }
 
+// listen listens for incoming packets
 func (c *NetworkClient) listen() {
 	defer func() {
 		// Lock, Close, and set c.conn to nil so we can reconnect later

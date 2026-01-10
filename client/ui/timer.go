@@ -21,6 +21,7 @@ const (
 
 var whiteImg *ebiten.Image
 
+// TimerInit initializes the timer by creating a 1x1 white image for drawing rectangles.
 func TimerInit() {
 	whiteImg = ebiten.NewImage(1, 1)
 	whiteImg.Fill(color.White)
@@ -34,7 +35,7 @@ type Timer struct {
 	OnEnd           func()
 }
 
-// NewTimer creates a new timer with a set duration
+// NewTimer creates a new timer with a set duration.
 func NewTimer(d time.Duration) *Timer {
 	return &Timer{
 		TotalDuration:   d,
@@ -69,7 +70,7 @@ func (t *Timer) Ratio() float32 {
 	return float32(t.CurrentDuration) / float32(t.TotalDuration)
 }
 
-// Helper to draw a generic colored rectangle
+// drawRect draws a filled rectangle with the specified color at the given position and size.
 func drawRect(screen *ebiten.Image, x, y, width, height float64, clr color.Color) {
 	op := &ebiten.DrawImageOptions{}
 
@@ -85,6 +86,7 @@ func drawRect(screen *ebiten.Image, x, y, width, height float64, clr color.Color
 	screen.DrawImage(whiteImg, op)
 }
 
+// Draw renders the timer bar to the screen.
 func (t *Timer) Draw(screen *ebiten.Image) {
 	// Draw Background (Gray)
 	bgColor := color.RGBA{RGBDefaultVal, RGBDefaultVal, RGBDefaultVal, MaxRGBAVal}

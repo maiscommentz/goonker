@@ -15,6 +15,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
+// Constants
 const (
 	// States of the application
 	sInit = iota
@@ -32,6 +33,7 @@ const (
 	isBotGame     = true
 )
 
+// Game represents the game state
 type Game struct {
 	menu          *ui.MainMenu
 	roomsMenu     *ui.RoomsMenu
@@ -49,16 +51,16 @@ type Game struct {
 
 // Init the game
 func (g *Game) Init() {
-	// Initialize network client
+	// Initialize network client which handles communication with the server
 	g.netClient = NewNetworkClient()
 
-	// Initialize the UI
+	// Initialize the UI elements and assets
 	ui.Init()
 
-	// Initialize UI elements
+	// Initialize UI elements specific to game states (menus, grid)
 	g.initUIElements()
 
-	// Initialize Audio Manager and sounds
+	// Initialize Audio Manager and load game sounds
 	g.initAudio()
 
 	// Play main menu music
@@ -68,7 +70,7 @@ func (g *Game) Init() {
 	}
 	g.audioManager.Play("main_menu_music")
 
-	// Set initial state
+	// Set initial state to Main Menu
 	g.state = sMainMenu
 }
 
@@ -81,14 +83,17 @@ func (g *Game) Update() error {
 
 	switch g.state {
 	case sInit:
+		// Initialize the game if in Init state
 		g.Init()
 	case sMainMenu:
+		// Handle Main Menu interactions
+
+		// Click on play
 		if g.menu.BtnPlay.IsClicked() {
 			g.audioManager.Play("click_button")
 			// Try to connect to server (Async)
-			// Note: For WASM/Localhost testing use ws://localhost:8080/ws?room=87DY68
 			go func() {
-				err := g.netClient.Connect(serverAddress) // 172.20.10.2
+				err := g.netClient.Connect(serverAddress)
 				if err != nil {
 					log.Println("Connection failed:", err)
 				} else {
@@ -100,11 +105,15 @@ func (g *Game) Update() error {
 				}
 			}()
 		}
+		// Click on quit
 		if g.menu.BtnQuit.IsClicked() {
 			g.audioManager.Play("click_button")
 			return ebiten.Termination
 		}
 	case sRoomsMenu:
+		// Handle Rooms Menu interactions
+
+		// Update the room field for text input
 		g.roomsMenu.RoomField.Update()
 
 		// Back to main menu
@@ -117,7 +126,7 @@ func (g *Game) Update() error {
 		// Join a bot game with a specialized ID
 		if g.roomsMenu.BtnPlayBot.IsClicked() {
 			g.audioManager.Play("click_button")
-			// Create a bot game with a specialized ID
+			// Create a bot game with a specialized ID based on timestamp
 			err := g.netClient.JoinGame(fmt.Sprintf("BOT_%d", time.Now().Unix()), true)
 			if err != nil {
 				log.Println("Connection failed:", err)
@@ -142,6 +151,7 @@ func (g *Game) Update() error {
 			break
 		}
 
+		// Click on join game
 		if g.roomsMenu.BtnJoinGame.IsClicked() {
 
 			// Join the selected room
@@ -163,7 +173,7 @@ func (g *Game) Update() error {
 			break
 		}
 
-		// Join an existing room
+		// Join an existing room from the list
 		for i, room := range g.roomsMenu.Rooms {
 			if room.JoinBtn.IsClicked() {
 				err := g.netClient.JoinGame(room.Id, false)
@@ -176,11 +186,16 @@ func (g *Game) Update() error {
 			}
 		}
 	case sWaitingGame:
+		// Handle Waiting Screen animations and logic
+
+		// Update the animation wheel
 		g.waitingMenu.RotationAngle += 0.08
 
 		if g.waitingMenu.RotationAngle > math.Pi*2 {
 			g.waitingMenu.RotationAngle -= math.Pi * 2
 		}
+
+		// Play the waiting music if not already playing
 		if g.audioManager.IsPlaying("main_menu_music") {
 			g.audioManager.Stop("main_menu_music")
 
@@ -191,24 +206,33 @@ func (g *Game) Update() error {
 			g.audioManager.Play("waiting_opponent_music")
 		}
 	case sGamePlaying:
+		// Handle Game Playing state
+
+		// Click on a cell
 		if !g.isMyTurn {
 			return nil
 		}
 
+		// Check for grid clicks
 		cellX, cellY, ok := g.grid.OnClick()
 		if !ok {
 			return nil
 		}
 		g.audioManager.Play("place_symbol")
+		// Send move to server
 		err := g.netClient.PlaceSymbol(cellX, cellY)
 		if err != nil {
 			log.Println(err)
 		}
 	case sChallenge:
+		// Handle Challenge state (Mini-game/Quiz)
+
+		// Update the clock
 		g.challengeMenu.Clock.Update()
 		for i, ansBtn := range g.challengeMenu.Answers {
 			if ansBtn.IsClicked() {
 				g.audioManager.Play("challenge")
+				// Send answer to server
 				err := g.netClient.AnswerChallenge(i)
 				if err != nil {
 					log.Println("Connection failed:", err)
@@ -217,9 +241,13 @@ func (g *Game) Update() error {
 			}
 		}
 	case sGameWin, sGameLose, sGameDraw:
+		// Handle Game Over states
+
+		// Click on back
 		if g.gameOverMenu.BtnBack.IsClicked() {
 			g.audioManager.Play("click_button")
 			g.netClient.Disconnect()
+			// Reconnect to lobby
 			go func() {
 				err := g.netClient.Connect(serverAddress)
 				if err != nil {
@@ -243,20 +271,28 @@ func (g *Game) Update() error {
 func (g *Game) Draw(screen *ebiten.Image) {
 	switch g.state {
 	case sMainMenu:
+		// Draw Main Menu
 		ui.RenderMenu(screen, g.menu)
 	case sWaitingGame:
+		// Draw Waiting Screen
 		ui.RenderWaitingGame(screen, g.waitingMenu)
 	case sRoomsMenu:
+		// Draw Rooms List
 		ui.RenderRoomsMenu(screen, g.roomsMenu)
 	case sGamePlaying:
+		// Draw Game Board
 		ui.RenderGame(screen, g.grid, g.isMyTurn)
 	case sChallenge:
+		// Draw Challenge/Quiz Interface
 		ui.RenderChallenge(screen, g.challengeMenu)
 	case sGameWin:
+		// Draw Win Screen
 		ui.RenderWin(screen, g.gameOverMenu)
 	case sGameLose:
+		// Draw Lose Screen
 		ui.RenderLose(screen, g.gameOverMenu)
 	case sGameDraw:
+		// Draw Draw Screen
 		ui.RenderDraw(screen, g.gameOverMenu)
 	}
 }
@@ -273,6 +309,7 @@ func (g *Game) handleNetwork() {
 	}
 
 	for {
+		// Non-blocking poll for new packets
 		packet := g.netClient.Poll()
 		if packet == nil {
 			break // No more messages
@@ -280,6 +317,7 @@ func (g *Game) handleNetwork() {
 
 		switch packet.Type {
 		case common.MsgRooms:
+			// Handle room list update
 			var p common.RoomsPayload
 			if err := json.Unmarshal(packet.Data, &p); err != nil {
 				log.Printf("Failed to unmarshal %s: %v", packet.Type, err)
@@ -288,15 +326,16 @@ func (g *Game) handleNetwork() {
 			// Clear existing rooms
 			g.roomsMenu.Rooms = nil
 
-			// Update rooms list
+			// Update rooms list with new data
 			for _, roomId := range p.Rooms {
 				log.Printf("%s", roomId)
-				// Initialize
+				// Initialize new Room UI element
 				room := ui.NewRoom(roomId)
 				g.roomsMenu.Rooms = append(g.roomsMenu.Rooms, room)
 			}
 
 		case common.MsgGameStart:
+			// Handle game start signal
 			var p common.GameStartPayload
 			if err := json.Unmarshal(packet.Data, &p); err != nil {
 				log.Printf("Failed to unmarshal %s: %v", packet.Type, err)
@@ -308,7 +347,8 @@ func (g *Game) handleNetwork() {
 			log.Printf("Game Started! I am Player %d", g.mySymbol)
 
 		case common.MsgUpdate:
-			// Ensure the game state
+			// Handle board update
+			// Ensure the game state is set to playing (recovers from network lag/missed packets)
 			g.state = sGamePlaying
 
 			var p common.UpdatePayload
@@ -317,36 +357,44 @@ func (g *Game) handleNetwork() {
 				continue
 			}
 
+			// Update local grid data
 			g.grid.BoardData = p.Board
 			g.isMyTurn = (p.Turn == g.mySymbol)
 			log.Println("Board updated")
 
 		case common.MsgChallenge:
+			// Handle challenge trigger (quiz)
 			var payload common.ChallengePayload
 			if err := json.Unmarshal(packet.Data, &payload); err != nil {
 				log.Printf("Failed to unmarshal %s: %v", packet.Type, err)
 				continue
 			}
 
+			// Initialize and display challenge menu
 			g.challengeMenu = ui.NewChallengeMenu(payload)
 			g.state = sChallenge
 
+			// Start challenge timer
 			g.challengeMenu.Clock = *ui.NewTimer(common.ChallengeTime * time.Second)
 			g.challengeMenu.Clock.OnEnd = func() {
+				// Handle timer expiration
 				g.audioManager.Play("challenge")
 				g.state = sGamePlaying
+				// Send empty answer (-1) on timeout
 				err := g.netClient.AnswerChallenge(-1)
 				if err != nil {
 					log.Println("Connection failed:", err)
 				}
 			}
 		case common.MsgGameOver:
+			// Handle game over result
 			var p common.GameOverPayload
 			if err := json.Unmarshal(packet.Data, &p); err != nil {
 				log.Printf("Failed to unmarshal %s: %v", packet.Type, err)
 				continue
 			}
 
+			// Determine result and switch state/music
 			switch p.Winner {
 			case g.mySymbol:
 				g.state = sGameWin
@@ -376,10 +424,15 @@ func (g *Game) handleNetwork() {
 
 // Initialize UI elements like menus, grid, etc.
 func (g *Game) initUIElements() {
+	// Initialize Main Menu
 	g.menu = ui.NewMainMenu()
+	// Initialize Rooms Menu
 	g.roomsMenu = ui.NewRoomsMenu()
+	// Initialize Game Over Menu
 	g.gameOverMenu = ui.NewGameOverMenu()
+	// Initialize Waiting Menu
 	g.waitingMenu = &ui.WaitingMenu{}
+	// Initialize Game Grid with default columns
 	g.grid = &ui.Grid{
 		Col: ui.GridCol,
 	}
@@ -388,6 +441,8 @@ func (g *Game) initUIElements() {
 // Initialize audio manager and load sounds
 func (g *Game) initAudio() {
 	g.audioManager = audio.NewAudioManager()
+
+	// Load sound effects
 	err := g.audioManager.LoadSound("click_button", "click_button.wav")
 	if err != nil {
 		log.Printf("Error loading sound: %v", err)
