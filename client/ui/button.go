@@ -55,10 +55,13 @@ func (b *Button) Draw(screen *ebiten.Image) {
 func (b *Button) IsClicked() bool {
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
 		mx, my := ebiten.CursorPosition()
-		fmx, fmy := float64(mx), float64(my)
-
-		return fmx >= b.X && fmx <= b.X+b.Width &&
-			fmy >= b.Y && fmy <= b.Y+b.Height
+		return b.Contains(float64(mx), float64(my))
 	}
 	return false
+}
+
+// Contains checks if the given coordinates are within the button's bounds.
+func (b *Button) Contains(x, y float64) bool {
+	return x >= b.X && x <= b.X+b.Width &&
+		y >= b.Y && y <= b.Y+b.Height
 }

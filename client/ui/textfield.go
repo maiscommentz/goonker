@@ -86,13 +86,7 @@ func (tf *TextField) Update() {
 	// Handle click
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
 		mx, my := ebiten.CursorPosition()
-		wasFocused := tf.Focused
-		tf.Focused = float64(mx) >= tf.X && float64(mx) <= tf.X+tf.Width &&
-			float64(my) >= tf.Y && float64(my) <= tf.Y+tf.Height
-
-		if wasFocused != tf.Focused {
-			tf.redraw()
-		}
+		tf.HandleClick(float64(mx), float64(my))
 	}
 
 	if !tf.Focused {
@@ -113,21 +107,17 @@ func (tf *TextField) Update() {
 	runes := ebiten.AppendInputChars(nil)
 	if len(runes) > 0 {
 		for _, r := range runes {
-			if len(tf.Text) < tf.MaxLength {
-				tf.Text += string(r)
+			if tf.Insert(string(r)) {
+				needsRedraw = true
 			}
 		}
-		needsRedraw = true
-		tf.cursorVisible = true
-		tf.cursorTimer = 0
 	}
 
 	// Backspace
-	if inpututil.IsKeyJustPressed(ebiten.KeyBackspace) && len(tf.Text) > 0 {
-		tf.Text = tf.Text[:len(tf.Text)-1]
-		needsRedraw = true
-		tf.cursorVisible = true
-		tf.cursorTimer = 0
+	if inpututil.IsKeyJustPressed(ebiten.KeyBackspace) {
+		if tf.Backspace() {
+			needsRedraw = true
+		}
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
@@ -138,6 +128,39 @@ func (tf *TextField) Update() {
 	if needsRedraw {
 		tf.redraw()
 	}
+}
+
+// HandleClick updates focus state based on click position
+func (tf *TextField) HandleClick(x, y float64) {
+	wasFocused := tf.Focused
+	tf.Focused = x >= tf.X && x <= tf.X+tf.Width &&
+		y >= tf.Y && y <= tf.Y+tf.Height
+
+	if wasFocused != tf.Focused {
+		tf.redraw()
+	}
+}
+
+// Insert adds a string to the text field if max length permits. Returns true if changed.
+func (tf *TextField) Insert(s string) bool {
+	if len(tf.Text)+len(s) <= tf.MaxLength {
+		tf.Text += s
+		tf.cursorVisible = true
+		tf.cursorTimer = 0
+		return true
+	}
+	return false
+}
+
+// Backspace removes the last character. Returns true if changed.
+func (tf *TextField) Backspace() bool {
+	if len(tf.Text) > 0 {
+		tf.Text = tf.Text[:len(tf.Text)-1]
+		tf.cursorVisible = true
+		tf.cursorTimer = 0
+		return true
+	}
+	return false
 }
 
 // Draw draws the text field to the screen.
