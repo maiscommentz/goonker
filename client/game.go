@@ -118,7 +118,7 @@ func (g *Game) Update() error {
 		if g.roomsMenu.BtnPlayBot.IsClicked() {
 			g.audioManager.Play("click_button")
 			// Create a bot game with a specialized ID
-			err := g.netClient.JoinGame(fmt.Sprintf("BOT_%d", time.Now().Unix()/1000), true)
+			err := g.netClient.JoinGame(fmt.Sprintf("BOT_%d", time.Now().Unix()), true)
 			if err != nil {
 				log.Println("Connection failed:", err)
 			}
@@ -128,7 +128,7 @@ func (g *Game) Update() error {
 		// Create a room with a random ID.
 		if g.roomsMenu.BtnCreateRoom.IsClicked() {
 			g.audioManager.Play("click_button")
-			newRoomId := fmt.Sprintf("%d", time.Now().Unix()/1000)
+			newRoomId := fmt.Sprintf("%d", time.Now().Unix())
 			err := g.netClient.JoinGame(newRoomId, false)
 			if err != nil {
 				log.Println("Connection failed:", err)
@@ -219,11 +219,20 @@ func (g *Game) Update() error {
 	case sGameWin, sGameLose, sGameDraw:
 		if g.gameOverMenu.BtnBack.IsClicked() {
 			g.audioManager.Play("click_button")
-			g.state = sRoomsMenu
-			err := g.netClient.GetRooms()
-			if err != nil {
-				log.Println("Could not get rooms : ", err)
-			}
+			g.netClient.Disconnect()
+			go func() {
+				err := g.netClient.Connect(serverAddress)
+				if err != nil {
+					log.Println("Connection failed:", err)
+					g.state = sMainMenu
+				} else {
+					g.state = sRoomsMenu
+					err := g.netClient.GetRooms()
+					if err != nil {
+						log.Println("Could not get rooms : ", err)
+					}
+				}
+			}()
 		}
 	}
 	return nil

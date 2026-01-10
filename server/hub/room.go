@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"log"
+	"strings"
 	"sync"
 	"time"
 
@@ -115,7 +116,7 @@ func (r *Room) listenPlayer(pid common.PlayerID, conn *websocket.Conn) {
 		r.mutex.Unlock()
 
 		err := conn.Close(websocket.StatusNormalClosure, CloseMessage)
-		if err != nil {
+		if err != nil && !strings.Contains(err.Error(), "already wrote close") {
 			log.Println(err)
 		}
 
@@ -288,6 +289,8 @@ func (r *Room) broadcastGameOver() {
 	for _, p := range r.Players {
 		r.sendJson(p.Conn, common.MsgGameOver, payload)
 	}
+
+	GlobalHub.RemoveRoom(r.ID)
 }
 
 // sendJson helps to reduce boilerplate and enforce timeouts
