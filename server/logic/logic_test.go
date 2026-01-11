@@ -46,14 +46,20 @@ func TestApplyMove(t *testing.T) {
 	}
 }
 
+func mustMove(t *testing.T, game *GameLogic, p common.PlayerID, x, y int) {
+	if err := game.ApplyMove(p, x, y); err != nil {
+		t.Fatalf("ApplyMove(%v, %d, %d) failed: %v", p, x, y, err)
+	}
+}
+
 func TestCheckWin(t *testing.T) {
 	// Row win
 	game := NewGameLogic()
-	game.ApplyMove(common.P1, 0, 0) // X
-	game.ApplyMove(common.P2, 1, 0) // O
-	game.ApplyMove(common.P1, 0, 1) // X
-	game.ApplyMove(common.P2, 1, 1) // O
-	game.ApplyMove(common.P1, 0, 2) // X wins
+	mustMove(t, game, common.P1, 0, 0) // X
+	mustMove(t, game, common.P2, 1, 0) // O
+	mustMove(t, game, common.P1, 0, 1) // X
+	mustMove(t, game, common.P2, 1, 1) // O
+	mustMove(t, game, common.P1, 0, 2) // X wins
 
 	if !game.GameOver {
 		t.Error("Expected game over")
@@ -64,11 +70,11 @@ func TestCheckWin(t *testing.T) {
 
 	// Diagonal win
 	game = NewGameLogic()
-	game.ApplyMove(common.P1, 0, 0)
-	game.ApplyMove(common.P2, 0, 1)
-	game.ApplyMove(common.P1, 1, 1)
-	game.ApplyMove(common.P2, 0, 2)
-	game.ApplyMove(common.P1, 2, 2)
+	mustMove(t, game, common.P1, 0, 0)
+	mustMove(t, game, common.P2, 0, 1)
+	mustMove(t, game, common.P1, 1, 1)
+	mustMove(t, game, common.P2, 0, 2)
+	mustMove(t, game, common.P1, 2, 2)
 
 	if !game.GameOver {
 		t.Error("Expected game over")
@@ -124,15 +130,15 @@ func TestDraw(t *testing.T) {
 	// 8. O -> 2,0
 	// 9. X -> 2,2
 
-	game.ApplyMove(common.P1, 0, 0)
-	game.ApplyMove(common.P2, 0, 1)
-	game.ApplyMove(common.P1, 0, 2)
-	game.ApplyMove(common.P2, 1, 1)
-	game.ApplyMove(common.P1, 1, 0)
-	game.ApplyMove(common.P2, 1, 2)
-	game.ApplyMove(common.P1, 2, 1)
-	game.ApplyMove(common.P2, 2, 0)
-	game.ApplyMove(common.P1, 2, 2)
+	mustMove(t, game, common.P1, 0, 0)
+	mustMove(t, game, common.P2, 0, 1)
+	mustMove(t, game, common.P1, 0, 2)
+	mustMove(t, game, common.P2, 1, 1)
+	mustMove(t, game, common.P1, 1, 0)
+	mustMove(t, game, common.P2, 1, 2)
+	mustMove(t, game, common.P1, 2, 1)
+	mustMove(t, game, common.P2, 2, 0)
+	mustMove(t, game, common.P1, 2, 2)
 
 	if !game.GameOver {
 		t.Error("Expected game over (draw)")
