@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"io/fs"
 	"log"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2/audio"
 	"github.com/hajimehoshi/ebiten/v2/audio/mp3"
@@ -13,9 +14,10 @@ import (
 
 // Constants for audio playback
 const (
-	SampleRate  = 44100
+	SampleRate  = 48000
 	MusicVolume = 0.3
 	SoundVolume = 0.3
+	Buffer      = 200 * time.Millisecond
 )
 
 // AudioManager manages audio playback
@@ -56,6 +58,8 @@ func (am *AudioManager) LoadMusic(name, path string) error {
 	if err != nil {
 		return err
 	}
+	player.SetBufferSize(Buffer)
+
 	// Set the volume
 	player.SetVolume(MusicVolume)
 
@@ -83,6 +87,8 @@ func (am *AudioManager) LoadSound(name, path string) error {
 	if err != nil {
 		return err
 	}
+	player.SetBufferSize(Buffer)
+
 	// Set the volume
 	player.SetVolume(SoundVolume)
 
